@@ -1,0 +1,39 @@
+﻿Project: Are electric cars really helping the environment?
+
+
+Professor : Michalis Vlachos
+
+
+Problem description
+Electric vehicles (EVs) are often heralded as a key solution for reducing carbon dioxide emissions associated with human transportation. This project aims to critically assess the validity of that claim through data analysis and statistical evaluation.
+Objective:
+The primary goal is to investigate whether there is measurable evidence supporting the notion that increased adoption of electric vehicles has led to a statistically significant improvement in air quality. The analysis will primarily focus on Switzerland, though data from other countries may be included to support cross-national comparisons.
+Project Tasks:
+1. Data Collection:
+   * Gather historical data on electric vehicle sales across various regions in Switzerland (and other countries, if reliable data is available).
+   * Collect air quality metrics over a comparable time frame from national databases (e.g., the Swiss Federal Office for the Environment) and other reputable sources.
+2. Trend Analysis:
+   * Examine the temporal relationship between the growth in electric vehicle adoption and changes in air quality indicators (e.g., PM2.5, NO₂, CO₂).
+   * Perform before-and-after analyses to identify any observable shifts in air pollution levels coinciding with the rise in EV use.
+3. Exploratory Data Analysis (EDA):
+   * Conduct comprehensive EDA to uncover patterns, outliers, and correlations in the data.
+   * Visualize geographic and temporal trends in EV adoption and air quality.
+4. Statistical and Machine Learning Analysis:
+   * Apply statistical hypothesis testing to evaluate whether changes in air quality are statistically significant.
+   * Optionally use machine learning models to explore predictive relationships and quantify impact, using methods from prior coursework.
+5. Interpretation and Presentation:
+   * Draw conclusions based on your findings. Does the data support the claim that EVs significantly improve air quality?
+   * Consider alternative explanations or limitations in the data.
+   * Present your analysis and conclusions in a clear, well-documented format (e.g., report, presentation, or dashboard).
+Outcome:
+By the end of the project, you should be able to present a reasoned, data-backed argument for or against the environmental benefits of electric vehicle adoption, particularly in relation to air quality. Whether your findings confirm or challenge conventional wisdom, the emphasis will be on rigorous analysis and thoughtful interpretation.
+
+
+General instructions 
+1. Data and Methodology Documentation
+* List and clearly cite all data sources and any supplementary files used.
+* Include all code, data processing scripts, and documentation that would help us to evaluate results.
+2. Deliverables 
+* Your report is your github, your code and your readme.md (no pdf is needed) with figures/graphs. You will also need to prepare an up to 15min video showcasing your approach (to be included in the repo as youtube link). Make sure you do some search on related work and report on it.
+* Emphasize clear, justified reasoning for each choice and assumption, and keep the overall report focused and succinct.
+And remember to have fun!

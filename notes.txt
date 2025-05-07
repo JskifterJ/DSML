@@ -1,18 +1,18 @@
 -	Which industries account for which emission types and in which proportion for each?
-o	Table like we saw in Science of Climate change
+    o	Table like we saw in Science of Climate change
 -	Ozone, PM’s, CO2, monoxides etc.
 -	Data for Scandinavian countries since they have the highest transition data
 -	Or for all European countries
 -	Analyse dense traffic areas to truly measure impact on air quality locally
-o	Of course, dispersion means smaller effect on national scale
-o	Note that emissions permeate throughout the atmosphere, across borders which muddles the readability of data regarding CO2 especially (longer lifetime)
-o	Pattern should be present for low life-time particles and gases such as PPMs etc.
+    o	Of course, dispersion means smaller effect on national scale
+    o	Note that emissions permeate throughout the atmosphere, across borders which muddles the readability of data regarding CO2 especially (longer lifetime)
+    o	Pattern should be present for low life-time particles and gases such as PPMs etc.
 -	Consider local impact of upstream production emissions: are emissions just passed onto other nations? 
-o	Is the globe and average citizen of the world better of with EVs? (maintenance cost, considering oil refinement impact as well)
-o	Would awaiting hydrogen cars be a better option? 
+    o	Is the globe and average citizen of the world better of with EVs? (maintenance cost, considering oil refinement impact as well)
+    o	Would awaiting hydrogen cars be a better option? 
 -	Consider all phases of the product lifecycle and contrast to internal combustion (ICE)
-o	Production, use phase, recycling
-o	Including inputs: fuel
+    o	Production, use phase, recycling
+    o	Including inputs: fuel
 -	Analyse per economic-unit impact trajectory
 
 

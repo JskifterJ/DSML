@@ -1,0 +1,27 @@
+-	Which industries account for which emission types and in which proportion for each?
+o	Table like we saw in Science of Climate change
+-	Ozone, PM’s, CO2, monoxides etc.
+-	Data for Scandinavian countries since they have the highest transition data
+-	Or for all European countries
+-	Analyse dense traffic areas to truly measure impact on air quality locally
+o	Of course, dispersion means smaller effect on national scale
+o	Note that emissions permeate throughout the atmosphere, across borders which muddles the readability of data regarding CO2 especially (longer lifetime)
+o	Pattern should be present for low life-time particles and gases such as PPMs etc.
+-	Consider local impact of upstream production emissions: are emissions just passed onto other nations? 
+o	Is the globe and average citizen of the world better of with EVs? (maintenance cost, considering oil refinement impact as well)
+o	Would awaiting hydrogen cars be a better option? 
+-	Consider all phases of the product lifecycle and contrast to internal combustion (ICE)
+o	Production, use phase, recycling
+o	Including inputs: fuel
+-	Analyse per economic-unit impact trajectory
+
+
+Analysis steps to be done sequentially and in steps:
+1.	Locate data on EV proportion of car fleet, EV proportion of road transport fleet.
+2.	Locate data on local air quality, prioritizing air quality measurements near highly frequented roads/highways 
+a.	Air quality data should include data on emissions such as CO2, PM’s, Nox gasses etc.
+3.	Collect data on lifetime emissions of EV vs ICE cars, including upstream emissions for fuel (electricity or gas/diesel) 
+4.	Collect data on active vehicle fleet composition across countries with high EV shares (Scandinavian, European) over past 10 years
+5.	Similarly, collect data on those countries/areas’ air quality over past 10 years
+6.	Run a regression analysis: Does share of vehicle fleet in a country/area affect the local air quality?
+7.	Then create a Streamlit app which showcases, step by step, the data used and what the output of the analysis is

@@ -25,3 +25,11 @@ a.	Air quality data should include data on emissions such as CO2, PM’s, Nox ga
 5.	Similarly, collect data on those countries/areas’ air quality over past 10 years
 6.	Run a regression analysis: Does share of vehicle fleet in a country/area affect the local air quality?
 7.	Then create a Streamlit app which showcases, step by step, the data used and what the output of the analysis is
+
+
+Data we need: 
+1. EV proportion of car fleet; nationally, regionally -> perhaps for several countries, preferably with high alternative-fuels (AF) proportion for measurable impact
+2. Data on average internal combustion (ICE) emission data time series over same time period as EV proportion
+3. Local air quality data, preferably in highly congested traffic zones to measure immediate impact (dispersion/extinction of pollutants)
+4. General data on e.g. industrial emissions as control variable in regression models
+5.

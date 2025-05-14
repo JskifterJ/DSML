@@ -36,4 +36,22 @@ General instructions
 2. Deliverables 
 * Your report is your github, your code and your readme.md (no pdf is needed) with figures/graphs. You will also need to prepare an up to 15min video showcasing your approach (to be included in the repo as youtube link). Make sure you do some search on related work and report on it.
 * Emphasize clear, justified reasoning for each choice and assumption, and keep the overall report focused and succinct.
+
 And remember to have fun!
+
+Countries: 
+- Switzerland
+- Norway
+- Denmark 
+- Netherlands
+- Austria 
+
+Plan:
+1. collect EV share of vehicle fleet data per year/semi-annual
+2. collect annual air quality measurements for countries ->  CO2, NOx, PM2.5, PM10 -> local air quality stations close to road infra. 
+3. put all into dataframes
+4. before and after: 10 years ago and 2024
+5. EDA
+6. regression: predict values: SKlearn; test diff. models → add variables = ok → lazypredict library: tries out all techniques in SKlearn → finetune. 
+   is there a pattern  where line converges reaching xx air quality threshold?
+7. 

@@ -1,13 +1,11 @@
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Debug: Check the current working directory
 print("Current Working Directory:", os.getcwd())
 
 # Set the path to the raw data folder
-data_path = "../data/raw"
+data_path = "../data/raw/fleet_data"  # Relative path to the raw data folder
 
 # Verify if the path exists
 if not os.path.exists(data_path):
@@ -17,35 +15,44 @@ if not os.path.exists(data_path):
 # List all CSV files in the raw data folder
 csv_files = [file for file in os.listdir(data_path) if file.endswith(".csv")]
 
-# Load all CSV files into a dictionary of DataFrames
-dataframes = {}
+# Initialize dictionaries to store DataFrames for each file type
+newreg_dataframes = {}
+eu_dataframes = {}
+registrations_dataframes = {}
+
+# Process files based on their type
 for file in csv_files:
     country_name = file.split("_")[0]  # Extract country name from the file name
     file_path = os.path.join(data_path, file)
-    dataframes[country_name] = pd.read_csv(file_path)
 
-# Display the first few rows of each dataset
-for country, df in dataframes.items():
-    print(f"Dataset for {country}:")
-    print(df.head(), "\n")
+    if file.endswith("newreg.csv"):
+        newreg_dataframes[country_name] = pd.read_csv(file_path)
+    elif file.endswith("EU.csv"):
+        eu_dataframes[country_name] = pd.read_csv(file_path)
+    elif file.endswith("registrations.csv"):
+        registrations_dataframes[country_name] = pd.read_csv(file_path)
 
-# Combine all datasets into a single DataFrame for easier analysis
-combined_df = pd.concat(dataframes.values(), keys=dataframes.keys(), names=["Country", "Index"]).reset_index()
+# Combine datasets for each file type
+combined_newreg_df = pd.concat(newreg_dataframes.values(), keys=newreg_dataframes.keys(), names=["Country", "Index"]).reset_index()
+combined_eu_df = pd.concat(eu_dataframes.values(), keys=eu_dataframes.keys(), names=["Country", "Index"]).reset_index()
+combined_registrations_df = pd.concat(registrations_dataframes.values(), keys=registrations_dataframes.keys(), names=["Country", "Index"]).reset_index()
 
-# Display basic information about the combined dataset
-print("Combined Dataset Info:")
-print(combined_df.info())
+# Display basic information about the combined datasets
+print("Combined New Registrations Dataset Info:")
+print(combined_newreg_df.info())
 
-# Display summary statistics
-print("\nSummary Statistics:")
-print(combined_df.describe())
+print("\nCombined EU Dataset Info:")
+print(combined_eu_df.info())
 
-# Check for missing values
-print("\nMissing Values:")
-print(combined_df.isnull().sum())
+print("\nCombined Registrations Dataset Info:")
+print(combined_registrations_df.info())
 
-# Save the combined dataset to the processed folder
+# Save the combined datasets to the processed folder
 processed_path = "../data/processed"
 os.makedirs(processed_path, exist_ok=True)
-combined_df.to_csv(os.path.join(processed_path, "combined_fleet_data.csv"), index=False)
-print(f"Combined dataset saved to {processed_path}/combined_fleet_data.csv")
+
+combined_newreg_df.to_csv(os.path.join(processed_path, "combined_newreg_data.csv"), index=False)
+combined_eu_df.to_csv(os.path.join(processed_path, "combined_eu_data.csv"), index=False)
+combined_registrations_df.to_csv(os.path.join(processed_path, "combined_registrations_data.csv"), index=False)
+
+print(f"Combined datasets saved to {processed_path}/")

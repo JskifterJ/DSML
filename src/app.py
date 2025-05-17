@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Set page configuration
-st.set_page_config(page_title="EV Impact on Air Quality", layout="wide")
+st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
+
 
 # Load processed data
-@st.cache
+@st.cache_data
 def load_data():
     fleet_data = pd.read_csv("../data/processed/combined_fleet_data.csv")
     return fleet_data
@@ -16,20 +17,7 @@ data = load_data()
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Dashboard", "Introduction", "EDA", "Regression Analysis", "Air Quality Predictor", "Literature Review", "Discussion", "Conclusions"])
-
-# Limit the max width of the main content
-st.markdown(
-    """
-    <style>
-    .main .block-container {
-        max-width: 900px;
-        margin: auto;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+section = st.sidebar.radio("Go to", ["Dashboard", "Introduction", "EDA", "Analysis", "Air Quality Predictor", "Literature Review", "Discussion", "Conclusions"])
 
 # Dashboard page
 if section == "Dashboard":
@@ -46,8 +34,8 @@ if section == "Dashboard":
         if st.button("EDA"):
             st.session_state.section = "EDA"
     with col3:
-        if st.button("Regression Analysis"):
-            st.session_state.section = "Regression Analysis"
+        if st.button("Analysis"):
+            st.session_state.section = "Analysis"
 
     col4, col5, col6 = st.columns(3)
 
@@ -103,7 +91,7 @@ elif section == "Introduction":
     st.write("""
     This dashboard is divided into several sections to guide you through the analysis:
     - **Exploratory Data Analysis (EDA)**: Visualize trends in EV adoption and air quality metrics.
-    - **Regression Analysis**: Understand the statistical relationship between EV adoption and air quality.
+    - **Analysis**: Understand the statistical relationship between EV adoption and air quality.
     - **Air Quality Predictor**: Predict air quality metrics based on EV adoption levels.
     - **Literature Review**: Explore existing research on EVs and their environmental impact.
     - **Conclusions**: Summarize findings and discuss alternative explanations.
@@ -132,12 +120,101 @@ elif section == "EDA":
     st.subheader("Air Quality Trends")
     st.write("Air quality data visualizations will be added here.")
 
-elif section == "Regression Analysis":
-    st.title("Regression Analysis")
-    st.write("This section presents the results of regression models analyzing the relationship between EV adoption and air quality.")
+elif section == "Analysis":
+    st.title("Analysis")
+    st.write("This section presents the results of cross-sectional and regression models analyzing the relationship between EV adoption and air quality.")
 
-    # Placeholder for regression results
-    st.write("Regression results will be displayed here.")
+    st.write("""
+    ## What Did We Learn?
+    Our journey through data and models has revealed some fascinating insights into the relationship between electric vehicle (EV) adoption and air quality across Europe. Let's break down the highlights, the surprises, and the stories the data tells!
+    """)
+
+    st.write("""
+    ## Key Findings
+    - Our analysis explored the relationship between electric vehicle (EV) adoption and air quality across Europe using a variety of statistical and machine learning models.
+    - We found that in some countries and for some pollutants, EV adoption is associated with measurable improvements in air quality, but the relationship is complex and varies by context.
+    - The top-performing models (see tables below) show strong predictive power for certain pollutant-country combinations, while others remain challenging to model.
+
+    ## Methodology: How Did We Find the Best Models?
+    - We compared several regression models (Linear, Ridge, Lasso, Random Forest) for each pollutant and air quality metric.
+    - Models were evaluated using the R² score, which measures how well the model explains the variance in the data.
+    - The "best" model for each pollutant/target combination is the one with the highest R² on the test set.
+    - Statistical significance is indicated with stars (*, **, ***), where available, based on conventional p-value thresholds:
+        - *p* < 0.05 (*), *p* < 0.01 (**), *p* < 0.001 (***)
+    - Note: Not all machine learning models provide p-values; stars are shown only where applicable (typically for linear models).
+    """)
+
+    # Load best/worst results
+    import pandas as pd
+    best_results = pd.read_csv("../results/best_model_per_pollutant_target.csv")
+    worst_results = pd.read_csv("../results/worst_model_per_pollutant_target.csv")
+
+    st.subheader("🏆 Top 10 Best Performing Models")
+    st.write("These are the model/pollutant/metric combos with the highest R² scores—our 'super predictors'!")
+    st.dataframe(best_results.head(10).style.background_gradient(cmap="Greens"))
+
+    st.subheader("🚨 10 Worst Performing Models")
+    st.write("And here are the combos where the models struggled—maybe the relationship just isn't there, or the data is too noisy!")
+    st.dataframe(worst_results.head(10).style.background_gradient(cmap="Reds"))
+
+    st.markdown("---")
+    st.subheader("💡 Did You Know?")
+
+    st.info("""
+    **Choosing and Interpreting Air Quality Data is Tricky!**
+
+    - **Negative values in air quality data** are common due to sensor noise, especially at low concentrations. These are not physically meaningful and are set to zero during cleaning. ([EPA Guidance](https://www.epa.gov/air-sensor-toolbox/air-sensor-performance-targets-and-testing-protocols))
+    - **PM2.5 and PM10** are not just from tailpipes! While EVs reduce exhaust, heavier EVs can increase tire and road dust, and regenerative braking reduces brake dust. ([ICCT Report](https://theicct.org/publication/non-exhaust-pm-emissions-from-electric-vehicles-mar2020/))
+    - **CO₂ and NO₂** are affected by much more than cars: energy production mix, industrial activity, and even weather patterns play a huge role. For example, Switzerland’s clean grid means EVs are “greener” there than in coal-heavy countries.
+    - **Causality is hard:** Even if we see a correlation between EV adoption and cleaner air, it doesn’t prove EVs are the cause. Factors like improved public transport, stricter emissions standards, or economic changes can all confound the results.
+    - **Data cleaning matters:** Outliers and negative values are handled carefully to avoid misleading results. See the README for details on our robust cleaning pipeline!
+
+    *“All models are wrong, but some are useful.”* — George Box
+
+    """)
+
+    st.markdown("---")
+    st.subheader("🔍 What Did We Find?")
+    # Highlight some interesting findings
+    st.markdown("### 🌟 Notable Patterns")
+    best = best_results.iloc[0]
+    st.write(f"- **Best overall:** {best['Model']} for {best['Pollutant']} ({best['Target']}) with R² = {best['R2']:.2f}")
+    st.write("- **Countries with consistently high model performance:**")
+    for country in ["NO", "CH", "AT", "NL", "DK"]:
+        n = best_results[best_results['Target'].str.contains(country, na=False)].shape[0]
+        if n > 0:
+            st.write(f"  - {country}: {n} top-10 appearances")
+    st.write("- **Pollutants best explained by EV adoption:**")
+    for pollutant in best_results['Pollutant'].value_counts().index[:3]:
+        st.write(f"  - {pollutant}")
+
+    # Show top 3 graphs
+    st.subheader("📈 Top 3 Model Fits: See the Magic!")
+    import os
+    import matplotlib.pyplot as plt
+
+    # Try to find the corresponding figure files for the top 3
+    for i, row in best_results.head(3).iterrows():
+        pollutant = row['Pollutant']
+        target = row['Target']
+        fig_path = f"../figures/analysis/{pollutant}_{target}_regression_country_fixed_effects_model_colored.png"
+        st.markdown(f"**{i+1}. {pollutant} - {target} ({row['Model']}, R²={row['R2']:.2f})**")
+        if os.path.exists(fig_path):
+            st.image(fig_path, caption=f"{pollutant} - {target} ({row['Model']})", use_column_width=True)
+        else:
+            st.warning(f"Figure not found: {fig_path}")
+
+    st.markdown("---")
+    st.subheader("🤔 Alternative Explanations & Limitations")
+    st.write("""
+    - **Correlation ≠ Causation:** While some models fit well, remember that many factors affect air quality—weather, industry, policy, and more.
+    - **Country Effects:** Some countries show strong relationships, others don't. This could be due to differences in data quality, policy, or other local factors.
+    - **Pollutant Mysteries:** Some pollutants (like PM2.5) are harder to predict—maybe because they're influenced by more than just vehicles.
+    - **Data Gaps:** Missing or sparse data can make even the best models stumble.
+    """)
+    st.info("Want to explore more? Try the Air Quality Predictor tab to see how changing EV adoption could impact air quality in your country!")
+
+    st.markdown("#### 🚀 Thanks for exploring with us! The road to cleaner air is full of twists, turns, and data surprises.")
 
 elif section == "Literature Review":
     st.title("Literature Review")

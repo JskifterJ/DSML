@@ -32,3 +32,11 @@ Data we need:
 2. Data on average internal combustion (ICE) emission data time series over same time period as EV proportion
 3. Local air quality data, preferably in highly congested traffic zones to measure immediate impact (dispersion/extinction of pollutants)
 4. General data on e.g. industrial emissions as control variable in regression models
+
+
+Notes:
+- review the AQ_annual averages -> where do negative values stem from? Delete from pre-average (AQ_merged_cleaned)?
+- maybe we add exclusion of weekends for day-time average?
+- add note on problem with PM values in terms of brakedust and tire particles (brake dust very low for EV/PHEV though since they almost entirely brake regeneratively)
+- Sweden?
+- test what happens when we exclude covid years (messes up the averages...)

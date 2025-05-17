@@ -8,3 +8,5 @@ statsmodels
 plotly
 openpyxl
 jupyter
+lazypredict
+scipy

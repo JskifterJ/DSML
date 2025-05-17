@@ -18,6 +18,19 @@ data = load_data()
 st.sidebar.title("Navigation")
 section = st.sidebar.radio("Go to", ["Dashboard", "Introduction", "EDA", "Regression Analysis", "Air Quality Predictor", "Literature Review", "Discussion", "Conclusions"])
 
+# Limit the max width of the main content
+st.markdown(
+    """
+    <style>
+    .main .block-container {
+        max-width: 900px;
+        margin: auto;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Dashboard page
 if section == "Dashboard":
     st.title("Welcome to the EV Impact Dashboard 🚗🌍")
@@ -126,49 +139,6 @@ elif section == "Regression Analysis":
     # Placeholder for regression results
     st.write("Regression results will be displayed here.")
 
-# Add a new section for Air Quality Predictor
-elif section == "Air Quality Predictor":
-    st.title("Air Quality Predictor 🚗🌍")
-    st.write("Predict air quality metrics based on EV adoption levels.")
-
-    # User inputs
-    st.subheader("Input Parameters")
-    country = st.selectbox("Select Country", data["Country"].unique())
-    ev_percentage = st.slider("Percentage of EVs in Vehicle Fleet (%)", min_value=0, max_value=100, value=20)
-
-    # Placeholder: Replace with actual regression model predictions
-    st.subheader("Predicted Air Quality Metrics")
-    st.write("Using regression results to predict air pollutant levels...")
-
-    # Example: Mock predictions (replace with actual regression model logic)
-    pollutants = ["PM2.5", "NO₂", "CO₂"]
-    predictions = {pollutant: ev_percentage * 0.1 for pollutant in pollutants}  # Mock formula
-
-    # Display predictions in a table
-    st.write("Predicted Air Quality Levels:")
-    prediction_df = pd.DataFrame.from_dict(predictions, orient="index", columns=["Predicted Level"])
-    st.table(prediction_df)
-
-    # Compare with 2024 statistics
-    st.subheader("Comparison with 2024 Statistics")
-    # Placeholder: Replace with actual 2024 data
-    stats_2024 = {pollutant: 50 for pollutant in pollutants}  # Mock data
-    comparison_df = pd.DataFrame({
-        "Pollutant": pollutants,
-        "2024 Level": [stats_2024[p] for p in pollutants],
-        "Predicted Level": [predictions[p] for p in pollutants]
-    })
-
-    # Plot comparison
-    st.write("Comparison Graph:")
-    fig, ax = plt.subplots(figsize=(10, 6))
-    comparison_df.set_index("Pollutant").plot(kind="bar", ax=ax)
-    ax.set_title("Predicted vs 2024 Air Quality Levels")
-    ax.set_ylabel("Level")
-    st.pyplot(fig)
-
-
-
 elif section == "Literature Review":
     st.title("Literature Review")
     st.write("""
@@ -199,6 +169,130 @@ elif section == "Literature Review":
     - Pollution reduction benefits depend on EV lifecycle emissions and the energy mix used for electricity generation.
     """)
     st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2018.04.040)")
+
+
+elif section == "Air Quality Predictor":
+    st.title("Air Quality Predictor 🚗🌍")
+    st.write("Predict air quality metrics based on EV adoption levels.")
+
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    from sklearn.linear_model import LinearRegression, Ridge, Lasso
+    from sklearn.ensemble import RandomForestRegressor
+    import matplotlib.pyplot as plt
+
+    @st.cache_data
+    def load_data():
+        aq = pd.read_csv("../data/processed/AQ_annual_averages.csv")
+        vehicle = pd.read_csv("../data/processed/combined_vehicle_data.csv")
+        data = aq.merge(vehicle, on=['Country', 'Year'], how='left')
+        return data
+
+    @st.cache_data
+    def load_best_results():
+        return pd.read_csv("../results/best_model_per_pollutant_target.csv")
+
+    @st.cache_resource
+    def train_model(df, feature, target, model_name, country_cols):
+        models = {
+            "LinearRegression": LinearRegression(),
+            "Ridge": Ridge(alpha=1.0),
+            "Lasso": Lasso(alpha=0.1),
+            "RandomForest": RandomForestRegressor(n_estimators=100, random_state=42)
+        }
+        X_df = df[[feature] + country_cols]
+        y = df[target]
+        mask = (~X_df.isnull().any(axis=1)) & (~y.isnull())
+        X = X_df[mask].values
+        y = y[mask].values
+        model = models[model_name]
+        model.fit(X, y)
+        return model, X, y, mask
+
+    st.title("Pollutant Prediction App")
+
+    data = load_data()
+    best_results = load_best_results()
+
+    # User selects pollutant and AnnualAvg_ column
+    pollutants = best_results['Pollutant'].unique()
+    pollutant = st.selectbox("Select pollutant", pollutants)
+
+    targets = best_results[best_results['Pollutant'] == pollutant]['Target'].unique()
+    target = st.selectbox("Select AnnualAvg_ column", targets)
+
+    # Get best model for this combination
+    row = best_results[(best_results['Pollutant'] == pollutant) & (best_results['Target'] == target)].iloc[0]
+    model_name = row['Model']
+    r2 = row['R2']
+
+    st.write(f"Best model: **{model_name}** (R² = {r2:.2f})")
+
+    # Filter data for pollutant and available countries
+    df = data[data['Pollutant'] == pollutant].copy()
+    countries = sorted(df['Country'].unique())
+    country = st.selectbox("Select country", countries)
+
+    # Prepare data for model
+    df['_CountryOrig'] = df['Country']
+    df = pd.get_dummies(df, columns=['Country'], drop_first=True)
+    country_cols = [col for col in df.columns if col.startswith('Country_')]
+
+    # Find the correct dummy column for the selected country
+    country_dummy_map = {col.replace('Country_', ''): col for col in country_cols}
+    selected_country_dummy = country_dummy_map.get(country, None)
+
+    # User selects AF_fleet percentage
+    af_fleet_min = float(df['AF_fleet'].min())
+    af_fleet_max = float(df['AF_fleet'].max())
+    af_fleet_default = float(df['AF_fleet'].mean())
+    af_fleet = st.slider("Select AF_fleet (%)", af_fleet_min, af_fleet_max, af_fleet_default)
+
+    # Train model (cached)
+    model, X, y, mask = train_model(df, "AF_fleet", target, model_name, country_cols)
+
+    # Prepare input for prediction
+    input_vec = np.zeros((1, X.shape[1]))
+    input_vec[0, 0] = af_fleet
+    if selected_country_dummy:
+        # Set the selected country dummy to 1, others to 0
+        idx = country_cols.index(selected_country_dummy)
+        input_vec[0, 1:] = 0
+        input_vec[0, idx+1] = 1  # +1 because first column is AF_fleet
+    else:
+        # If country is the reference (first in alphabetical order), all dummies are 0
+        input_vec[0, 1:] = 0
+
+    pred = model.predict(input_vec)[0]
+    st.success(f"Predicted {target} for {pollutant} in {country} at AF_fleet={af_fleet:.2f}: **{pred:.2f}**")
+
+    # Plot predicted pollutant vs AF_fleet for the selected country
+    af_fleet_range = np.linspace(af_fleet_min, af_fleet_max, 100)
+    X_plot = np.zeros((100, X.shape[1]))
+    X_plot[:, 0] = af_fleet_range
+    if selected_country_dummy:
+        X_plot[:, 1:] = 0
+        X_plot[:, idx+1] = 1
+    else:
+        X_plot[:, 1:] = 0
+
+    y_pred_plot = model.predict(X_plot)
+
+    fig, ax = plt.subplots(figsize=(7, 4))
+    ax.plot(af_fleet_range, y_pred_plot, label="Predicted")
+    # Scatter actual data for this country
+    if selected_country_dummy:
+        country_mask = df[selected_country_dummy] == 1
+    else:
+        # Reference country (all dummies 0)
+        country_mask = df[[col for col in country_cols]].sum(axis=1) == 0
+    ax.scatter(df.loc[country_mask, "AF_fleet"], df.loc[country_mask, target], color='orange', alpha=0.7, label="Actual data")
+    ax.set_xlabel("AF_fleet (%)")
+    ax.set_ylabel(target)
+    ax.set_title(f"{target} vs AF_fleet for {pollutant} in {country}")
+    ax.legend()
+    st.pyplot(fig)
 
 
 elif section == "Discussion":

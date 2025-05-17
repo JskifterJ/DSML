@@ -49,6 +49,7 @@ Run the Streamlit app:
 streamlit run src/app.py
 
 Notes: 
+<<<<<<< HEAD
 - while one could run the models based on transport-specific data, this data is merely a proxy for the average fuel consumption per kilometer of the transport fleet. With increasing adoption of Alternative Fuels (AF) vehicles in the fleet, this number will obviously be directled correlated with the change in emission factors such as CO2 and NO. Further, this would neglect the emissions of electricity production mix which BEV and PHEV vehicles require, thus severely graying the true picture of regional emission-data corresponding to passenger car emissions. 
 - we chose to include PM factors due to the how most BEV and PHEV vehicles brake exclusively with regenerative braking which thus produces less brake dust. On the other hand, the heavy nature of especially BEV's due to battery weight may cause increased dispersion of tire particulate matter. It is important to realize these considerations when interpreting results.
 - 
@@ -61,3 +62,8 @@ To ensure robust analysis:
 Negative values are set to zero, as they do not represent real-world pollutant concentrations.
 Outliers are detected using the Interquartile Range (IQR) method and are replaced with NaN values. This helps prevent extreme, likely erroneous values from skewing statistical analyses and visualizations.
 This cleaning step is essential for producing reliable insights from environmental monitoring data and is a standard practice in air quality data science.
+=======
+- while one could run the models based on transport-specific data, this data is merely a proxy for the average fuel consumption per kilometer of the transport fleet. With increasing adoption of Alternative Fuels (AF) vehicles in the fleet, this number will obviously be directled correlated with the change in emission factors such as CO2 and NO.
+- we chose to include PM factors due to the how most BEV and PHEV vehicles brake exclusively with regenerative braking which thus produces less brake dust. On the other hand, the heavy nature of especially BEV's due to battery weight may cause increased dispersion of tire particulate matter. It is important to realize these considerations when interpreting results.
+- 
+>>>>>>> 7b944fe99b6af9b4e568af4f01df7a9e7c1cc3d2

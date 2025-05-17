@@ -88,3 +88,29 @@ For each period (full week, weekdays, weekends), annual averages were calculated
 Final Output
 The resulting annual averages were pivoted to a wide format, with columns for each period and time window.
 The cleaned, aggregated data was saved as AQ_annual_averages.csv for use in regression analysis.
+
+
+4. Analysis
+Model Selection and Hyperparameter Tuning
+Step Description:
+
+For each pollutant and each annual average air quality metric, we fit several regression models (Linear Regression, Ridge, Lasso, Random Forest) to predict air quality from fleet share and country fixed effects.
+For Ridge, Lasso, and Random Forest, we use an extensive grid search (GridSearchCV) to tune hyperparameters and select the best-performing model for each pollutant/target combination.
+We report both train and test R², as well as the overfit gap, to assess model generalization and avoid overfitting.
+The best and worst models for each pollutant/target are saved for further analysis and visualization in the Streamlit app.
+Rationale for Hyperparameter Choices:
+
+Small dataset (50–60 samples):
+We use a broad but not excessive grid to balance thoroughness and computational feasibility.
+Ridge/Lasso:
+alpha is searched on a log scale from very small (1e-4) to large (1e2 or 1e3) values to capture both weak and strong regularization.
+Both fit_intercept options are tested to allow for models with or without intercept.
+For Lasso, both cyclic and random coordinate descent strategies are included.
+For Ridge, multiple solvers are tested for robustness.
+Random Forest:
+n_estimators (number of trees) is varied from 50 to 500 for flexibility.
+max_depth is varied from shallow to deep (including unlimited) to control model complexity.
+min_samples_split and min_samples_leaf are varied to test different minimum data requirements for splits and leaves, helping to avoid overfitting.
+max_features is varied to test different feature selection strategies at each split.
+
+

@@ -107,6 +107,27 @@ elif section == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
     st.write("This section explores trends in EV adoption and air quality metrics.")
 
+    with st.expander("ℹ️ What do the AnnualAvg_ columns mean?"):
+        st.markdown("""
+        **AnnualAvg_ Column Descriptions:**
+        - **AnnualAvg_fullweek_Daytime**: Average pollutant value during daytime hours (9:00–18:00), all days of the week.
+        - **AnnualAvg_fullweek_RushHour**: Average pollutant value during rush hours (8:00–10:00 & 15:00–18:00), all days of the week.
+        - **AnnualAvg_weekday_Daytime**: Average pollutant value during daytime hours, weekdays only (Mon–Fri).
+        - **AnnualAvg_weekday_RushHour**: Average pollutant value during rush hours, weekdays only.
+        - **AnnualAvg_weekend_Daytime**: Average pollutant value during daytime hours, weekends only (Sat–Sun).
+        - **AnnualAvg_weekend_RushHour**: Average pollutant value during rush hours, weekends only.
+        """)
+
+    with st.expander("🧪 Pollutant Descriptions"):
+        st.markdown("""
+    - 🟢 **CO₂ (Carbon Dioxide)**: Greenhouse gas, not directly harmful at ambient levels.
+    - 🟠 **NO₂ (Nitrogen Dioxide)**: Harmful pollutant from vehicles/industry, affects lungs.
+    - 🔵 **NO (Nitric Oxide)**: Precursor to NO₂, from combustion.
+    - 🟣 **NOₓ as NO₂**: Total nitrogen oxides, regulatory metric.
+    - ⚫ **PM2.5 (Fine Particulate)**: <2.5μm, penetrates lungs, health risk.
+    - ⚪ **PM10 (Coarse Particulate)**: <10μm, respiratory irritation.
+    """)
+
     # EV Adoption Trends
     st.subheader("EV Adoption Trends")
     fig, ax = plt.subplots(figsize=(10, 6))

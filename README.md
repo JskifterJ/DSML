@@ -49,8 +49,6 @@ Run the Streamlit app:
 streamlit run src/app.py
 
 Notes: 
-<<<<<<< HEAD
-<<<<<<< HEAD
 - while one could run the models based on transport-specific data, this data is merely a proxy for the average fuel consumption per kilometer of the transport fleet. With increasing adoption of Alternative Fuels (AF) vehicles in the fleet, this number will obviously be directled correlated with the change in emission factors such as CO2 and NO. Further, this would neglect the emissions of electricity production mix which BEV and PHEV vehicles require, thus severely graying the true picture of regional emission-data corresponding to passenger car emissions. 
 - we chose to include PM factors due to the how most BEV and PHEV vehicles brake exclusively with regenerative braking which thus produces less brake dust. On the other hand, the heavy nature of especially BEV's due to battery weight may cause increased dispersion of tire particulate matter. It is important to realize these considerations when interpreting results.
 - 
@@ -63,13 +61,30 @@ To ensure robust analysis:
 Negative values are set to zero, as they do not represent real-world pollutant concentrations.
 Outliers are detected using the Interquartile Range (IQR) method and are replaced with NaN values. This helps prevent extreme, likely erroneous values from skewing statistical analyses and visualizations.
 This cleaning step is essential for producing reliable insights from environmental monitoring data and is a standard practice in air quality data science.
-=======
-- while one could run the models based on transport-specific data, this data is merely a proxy for the average fuel consumption per kilometer of the transport fleet. With increasing adoption of Alternative Fuels (AF) vehicles in the fleet, this number will obviously be directled correlated with the change in emission factors such as CO2 and NO.
-- we chose to include PM factors due to the how most BEV and PHEV vehicles brake exclusively with regenerative braking which thus produces less brake dust. On the other hand, the heavy nature of especially BEV's due to battery weight may cause increased dispersion of tire particulate matter. It is important to realize these considerations when interpreting results.
-- 
->>>>>>> 7b944fe99b6af9b4e568af4f01df7a9e7c1cc3d2
-=======
-- while one could run the models based on transport-specific data, this data is merely a proxy for the average fuel consumption per kilometer of the transport fleet. With increasing adoption of Alternative Fuels (AF) vehicles in the fleet, this number will obviously be directled correlated with the change in emission factors such as CO2 and NO.
-- we chose to include PM factors due to the how most BEV and PHEV vehicles brake exclusively with regenerative braking which thus produces less brake dust. On the other hand, the heavy nature of especially BEV's due to battery weight may cause increased dispersion of tire particulate matter. It is important to realize these considerations when interpreting results.
-- 
->>>>>>> 7b944fe99b6af9b4e568af4f01df7a9e7c1cc3d2
+
+
+3. Cleaning
+Raw Data Aggregation
+Multiple CSVs from different sampling points were merged into a single DataFrame.
+Country codes were extracted from sampling point IDs and added as a new column.
+Initial Cleaning
+Unnecessary columns (e.g., ResultTime, DataCapture, FkObservationLog, Validity, Verification) were dropped.
+Pollutant codes were mapped to human-readable names (e.g., 7 to CO2, 8 to NO2, etc.).
+Datetime columns were converted to pandas datetime objects, and rows with invalid dates were dropped.
+Data Correction
+Negative values (measurement errors, common in air quality data) were set to zero, as they are not physically meaningful.
+Entries before 2012 and for 2024 were removed due to data quality or incompleteness.
+Outlier Handling
+Outliers were detected for each pollutant using the IQR (Interquartile Range) method.
+Outlier values were replaced with NaN to avoid skewing averages.
+Feature Engineering
+Date and hour were extracted from the datetime column.
+Year was extracted for annual aggregation.
+Weekday/weekend flags were created using the .dt.weekday property.
+Averaging and Aggregation
+Daily averages were computed for each country, pollutant, and date.
+Daytime (9:00–18:00) and rush-hour (8:00–10:00 & 15:00–18:00) periods were defined using the hour column.
+For each period (full week, weekdays, weekends), annual averages were calculated for both daytime and rush-hour windows.
+Final Output
+The resulting annual averages were pivoted to a wide format, with columns for each period and time window.
+The cleaned, aggregated data was saved as AQ_annual_averages.csv for use in regression analysis.

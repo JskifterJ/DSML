@@ -120,6 +120,7 @@ elif section == "EDA":
     st.subheader("Air Quality Trends")
     st.write("Air quality data visualizations will be added here.")
 
+
 elif section == "Analysis":
     st.title("Analysis")
     st.write("This section presents the results of cross-sectional and regression models analyzing the relationship between EV adoption and air quality.")
@@ -215,6 +216,7 @@ elif section == "Analysis":
     st.info("Want to explore more? Try the Air Quality Predictor tab to see how changing EV adoption could impact air quality in your country!")
 
     st.markdown("#### 🚀 Thanks for exploring with us! The road to cleaner air is full of twists, turns, and data surprises.")
+
 
 elif section == "Literature Review":
     st.title("Literature Review")

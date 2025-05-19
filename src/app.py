@@ -10,7 +10,7 @@ st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
 # Load processed data
 @st.cache_data
 def load_data():
-    fleet_data = pd.read_csv("../data/processed/combined_fleet_data.csv")
+    fleet_data = pd.read_csv("/Users/clarabottinelli/Documents/GitHub/DSML/data/processed/combined_fleet_data.csv")
     return fleet_data
 
 data = load_data()
@@ -131,7 +131,7 @@ elif section == "EDA":
     # EV Adoption Trends
     st.subheader("EV Adoption Trends")
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.lineplot(data=data, x="Category", y="BEV", hue="Country", ax=ax)
+    sns.lineplot(data=data, x="Index", y="BEV", hue="Country", ax=ax)
     ax.set_title("Battery Electric Vehicle (BEV) Trends Over Time")
     ax.set_xlabel("Year")
     ax.set_ylabel("BEV Proportion")
@@ -140,6 +140,32 @@ elif section == "EDA":
     # Air Quality Trends (Placeholder for future data)
     st.subheader("Air Quality Trends")
     st.write("Air quality data visualizations will be added here.")
+
+    aq_data = pd.read_csv("results/country_specific_pollutant_levels.csv")
+    unique_pollutants = aq_data['Pollutant'].unique()
+    n_pollutants = len(unique_pollutants)
+    ncols = 2
+    nrows = (n_pollutants + 1) // ncols
+
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(15, 5 * nrows), constrained_layout=True)
+    axes = axes.flatten()
+    for ax, pollutant in zip(axes, unique_pollutants):
+        sns.lineplot(
+            data=aq_data[aq_data['Pollutant'] == pollutant],
+            x='Year', y='AnnualAvg_fullweek_Daytime', hue='Country', marker='o', ax=ax
+        )
+        ax.set_title(f"{pollutant} Levels by Country")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Annual Avg (Daytime)")
+        ax.grid(True)
+        ax.legend(title='Country', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    # Hide unused subplots if any
+    for ax in axes[len(unique_pollutants):]:
+        ax.set_visible(False)
+
+    # Show the full plot in Streamlit
+    st.pyplot(fig)
 
 
 elif section == "Analysis":

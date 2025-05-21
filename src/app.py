@@ -11,20 +11,24 @@ from PIL import Image
 st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
 
 
-# Sound effects
+# Inject audio player and JS into the page
 st.markdown("""
-<audio id="nav-sound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c82.mp3"></audio>
+<audio id="nav-sound" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
 <script>
 window.playNavSound = function() {
-    var audio = document.getElementById('nav-sound');
-    if (audio) { audio.currentTime = 0; audio.play(); }
+    const audio = document.getElementById('nav-sound');
+    if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Autoplay failed:", e));
+    }
 }
 </script>
 """, unsafe_allow_html=True)
 
+# Wrapper to play sound
 def play_sound():
-    st.markdown("<script>window.playNavSound && window.playNavSound();</script>", unsafe_allow_html=True)
-
+    st.markdown("<script>window.playNavSound()</script>", unsafe_allow_html=True)
 
 def switch_section(new_section):
     st.session_state["section"] = new_section
@@ -44,14 +48,16 @@ if "section" not in st.session_state:
     st.session_state["section"] = "Dashboard"
 
 # Sidebar controls
-st.sidebar.title("Navigation")
+section_names = [
+    "Dashboard", "Introduction", "EDA", "Analysis",
+    "Air Quality Predictor", "Custom Regression Builder",
+    "Literature Review", "Discussion", "Conclusions"
+]
 selected = st.sidebar.radio(
     "Go to",
-    [
-        "Dashboard", "Introduction", "EDA", "Analysis",
-        "Air Quality Predictor", "Custom Regression Builder",
-        "Literature Review", "Discussion", "Conclusions"
-    ]
+    section_names,
+    index=section_names.index(st.session_state["section"]) if "section" in st.session_state else 0,
+    key="sidebar_section"
 )
 
 # Update session state based on sidebar
@@ -213,12 +219,12 @@ elif section == "Introduction":
     with col1:
         if st.button("⬅️ Previous"):
             play_sound()
-            switch_section("Introduction")  # update appropriately
+            st.session_state["section"] = "Dashboard"
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
             play_sound()
-            switch_section("EDA")  # update appropriately
+            st.session_state["section"] = "EDA"
             st.rerun()
 
 
@@ -378,12 +384,12 @@ elif section == "EDA":
     with col1:
         if st.button("⬅️ Previous"):
             play_sound()            
-            switch_section("Introduction")  # update appropriately
+            st.session_state["section"] = "Introduction"
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
             play_sound()
-            switch_section("Analysis")  # update appropriately
+            st.session_state["section"] = "Analysis"
             st.rerun()
 
 
@@ -413,8 +419,19 @@ elif section == "Analysis":
 
     # Load best/worst results
     import pandas as pd
-    best_results = pd.read_csv("../results/best_model_per_pollutant_target.csv")
-    worst_results = pd.read_csv("../results/worst_model_per_pollutant_target.csv")
+    import pathlib
+    best_results_path = pathlib.Path(__file__).parent.parent / "results" / "best_model_per_pollutant_target.csv"
+    if not best_results_path.exists():
+        st.error(f"File not found: {best_results_path}")
+        st.stop()
+    best_results = pd.read_csv(best_results_path)    
+
+    worst_results_path = pathlib.Path(__file__).parent.parent / "results" / "worst_model_per_pollutant_target.csv"
+    if not worst_results_path.exists():
+        st.error(f"File not found: {worst_results_path}")
+        st.stop()
+    worst_results = pd.read_csv(worst_results_path)  
+    
 
     st.subheader("🏆 Top 10 Best Performing Models")
     st.write("These are the model/pollutant/metric combos with the highest R² scores—our 'super predictors'!")
@@ -487,12 +504,12 @@ elif section == "Analysis":
     with col1:
         if st.button("⬅️ Previous"):
             play_sound()
-            switch_section("EDA")  # update appropriately
+            st.session_state["section"] = "EDA"
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
             play_sound()
-            switch_section("Literature Review")  # update appropriately
+            st.session_state["section"] = "Literature Review"
             st.rerun()
 
 
@@ -531,12 +548,12 @@ elif section == "Literature Review":
     with col1:
         if st.button("⬅️ Previous"):
             play_sound()
-            switch_section("Analysis")  # update appropriately
+            st.session_state["section"] = "Analysis"
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
             play_sound()
-            switch_section("Air Quality Predictor")  # update appropriately
+            st.session_state["section"] = "Air Quality Predictor"
             st.rerun()
 
 
@@ -696,12 +713,12 @@ elif section == "Air Quality Predictor":
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):
-            switch_section("Literature Review")  # update appropriately
+            st.session_state["section"] = "Literature Review"
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
             play_sound()
-            switch_section("Discussion")  # update appropriately
+            st.session_state["section"] = "Custom Regression Builder"
             st.rerun()
 
 
@@ -791,12 +808,12 @@ elif section == "Custom Regression Builder":
     with col1:
         if st.button("⬅️ Previous"):
             play_sound()
-            switch_section("Air Quality Predictor")  # update appropriately
+            st.session_state["section"] = "Air Quality Predictor"
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
             play_sound()
-            switch_section("Discussion")  # update appropriately
+            st.session_state["section"] = "Discussion"
             st.rerun()
 
 elif section == "Discussion":
@@ -867,12 +884,12 @@ elif section == "Discussion":
     with col1:
         if st.button("⬅️ Previous"):
             play_sound()
-            switch_section("Custom Regression Builder")  # update appropriately
+            st.session_state["section"] = "Custom Regression Builder"
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
             play_sound()
-            switch_section("Conclusions")  # update appropriately
+            st.session_state["section"] = "Conclusions"
             st.rerun()
 
 elif section == "Conclusions":
@@ -891,5 +908,5 @@ elif section == "Conclusions":
     with col1:
         if st.button("⬅️ Previous"):
             play_sound()
-            switch_section("Discussion")  # update appropriately
+            st.session_state["section"] = "Discussion"
             st.rerun()

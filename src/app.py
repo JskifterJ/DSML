@@ -33,10 +33,22 @@ def play_sound():
 def switch_section(new_section):
     st.session_state["section"] = new_section
 
+import pathlib
+
 # Load processed data
 @st.cache_data
 def load_data():
-    fleet_data = pd.read_csv("../data/processed/combined_fleet_data.csv")
+    # Use pathlib to construct the file path
+    data_dir = pathlib.Path(__file__).parent.parent / "data" / "processed"
+    fleet_data_path = data_dir / "combined_fleet_data.csv"
+
+    # Check if the file exists
+    if not fleet_data_path.exists():
+        st.error(f"File not found: {fleet_data_path}")
+        st.stop()
+
+    # Load the CSV file
+    fleet_data = pd.read_csv(fleet_data_path)
     return fleet_data
 
 data = load_data()

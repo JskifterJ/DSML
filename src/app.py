@@ -11,6 +11,21 @@ from PIL import Image
 st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
 
 
+# Sound effects
+st.markdown("""
+<audio id="nav-sound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c82.mp3"></audio>
+<script>
+window.playNavSound = function() {
+    var audio = document.getElementById('nav-sound');
+    if (audio) { audio.currentTime = 0; audio.play(); }
+}
+</script>
+""", unsafe_allow_html=True)
+
+def play_sound():
+    st.markdown("<script>window.playNavSound && window.playNavSound();</script>", unsafe_allow_html=True)
+
+
 def switch_section(new_section):
     st.session_state["section"] = new_section
 
@@ -30,12 +45,21 @@ if "section" not in st.session_state:
 
 # Sidebar controls
 st.sidebar.title("Navigation")
-selected = st.sidebar.radio("Go to", ["Dashboard", "Introduction", "EDA", "Analysis", "Air Quality Predictor", "Literature Review", "Discussion", "Conclusions"])
+selected = st.sidebar.radio(
+    "Go to",
+    [
+        "Dashboard", "Introduction", "EDA", "Analysis",
+        "Air Quality Predictor", "Custom Regression Builder",
+        "Literature Review", "Discussion", "Conclusions"
+    ]
+)
 
 # Update session state based on sidebar
 if selected != st.session_state["section"]:
+    play_sound()  # <-- Play sound before rerun
     st.session_state["section"] = selected
     st.rerun()
+
 
 # Use section for routing
 section = st.session_state["section"]
@@ -50,32 +74,38 @@ if section == "Dashboard":
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("📘 Introduction"):
-            st.session_state.section = "Introduction"
+            play_sound()
+            st.session_state["section"] = "Introduction"
             st.rerun()
     with col2:
         if st.button("📊 EDA"):
-            st.session_state.section = "EDA"
+            play_sound()
+            st.session_state["section"] = "EDA"
             st.rerun()
     with col3:
         if st.button("📈 Analysis"):
-            st.session_state.section = "Analysis"
+            play_sound()
+            st.session_state["section"] = "Analysis"
             st.rerun()
 
     col4, col5, col6 = st.columns(3)
     with col4:
         if st.button("📚 Literature Review"):
-            st.session_state.section = "Literature Review"
+            play_sound()
+            st.session_state["section"] = "Literature Review"
             st.rerun()
     with col5:
         if st.button("🧪 Air Quality Predictor"):
-            st.session_state.section = "Air Quality Predictor"
+            play_sound()
+            st.session_state["section"] = "Air Quality Predictor"
             st.rerun()
     with col6:
         if st.button("🔚 Conclusions"):
-            st.session_state.section = "Conclusions"
+            play_sound()
+            st.session_state["section"] = "Conclusions"
             st.rerun()
 
-    st.image("https://cdn-icons-png.flaticon.com/512/1680/1680170.png", width=100, caption="Clean Mobility")
+    st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWplZjlvYzUzNG5vNmsxcnQwb3AzNW5ycm44dTl5NzRpdjUxcGZ2aiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/AoHEeIi9AzzwLlEmfb/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_container_width =True)
 
 
 # Conditional logic for other sections
@@ -177,15 +207,17 @@ elif section == "Introduction":
     """)
 
     # Add a motivational GIF or image
-    st.image("https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", caption="Together, we can drive change!", use_container_width =True)
+    st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2NuaTdsZXA3OHpnNmZkdzFibTlud2hxMmlxNXd0dzB3YXNpdmN4aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/VIfE4DE7vY49i/giphy.gif", caption="Together, we can drive change!", use_container_width =True)
 
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):
+            play_sound()
             switch_section("Introduction")  # update appropriately
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
+            play_sound()
             switch_section("EDA")  # update appropriately
             st.rerun()
 
@@ -345,10 +377,12 @@ elif section == "EDA":
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):
+            play_sound()            
             switch_section("Introduction")  # update appropriately
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
+            play_sound()
             switch_section("Analysis")  # update appropriately
             st.rerun()
 
@@ -452,10 +486,12 @@ elif section == "Analysis":
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):
+            play_sound()
             switch_section("EDA")  # update appropriately
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
+            play_sound()
             switch_section("Literature Review")  # update appropriately
             st.rerun()
 
@@ -494,10 +530,12 @@ elif section == "Literature Review":
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):
+            play_sound()
             switch_section("Analysis")  # update appropriately
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
+            play_sound()
             switch_section("Air Quality Predictor")  # update appropriately
             st.rerun()
 
@@ -662,9 +700,104 @@ elif section == "Air Quality Predictor":
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
+            play_sound()
             switch_section("Discussion")  # update appropriately
             st.rerun()
 
+
+elif section == "Custom Regression Builder":
+    st.title("🔬 Custom Regression Builder")
+
+    import pathlib
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from sklearn.linear_model import LinearRegression, Ridge, Lasso
+    from sklearn.ensemble import RandomForestRegressor
+
+    # Robust data import (relative to project root)
+    DATA_DIR = pathlib.Path(__file__).parent.parent / "data" / "processed"
+    aq = pd.read_csv(DATA_DIR / "AQ_annual_averages.csv")
+    vehicle = pd.read_csv(DATA_DIR / "combined_vehicle_data.csv")
+    data = aq.merge(vehicle, on=['Country', 'Year'], how='left')
+
+    # --- User selects pollutant and which AnnualAvg_ column to use ---
+    pollutants = sorted(data['Pollutant'].dropna().unique())
+    pollutant = st.selectbox("Select pollutant (dependent variable)", pollutants)
+
+    # Find all AnnualAvg_ columns available for this pollutant
+    annualavg_cols = [col for col in data.columns if col.startswith("AnnualAvg_")]
+    # Optionally, let user pick which annual average column to use (default: first)
+    default_col = annualavg_cols[0] if annualavg_cols else None
+    y_col = st.selectbox("Select annual average column", annualavg_cols, index=annualavg_cols.index(default_col) if default_col else 0)
+
+    # Filter data for selected pollutant
+    df = data[data['Pollutant'] == pollutant].copy()
+
+    # X variable selection (exclude non-numeric/object columns)
+    x_vars = st.multiselect(
+        "Select independent variables (X)",
+        [col for col in df.columns if col not in ["Country", "Year", "Pollutant", y_col] and df[col].dtype != "object"],
+        default=["AF_fleet"]
+    )
+
+    # Country filter
+    countries = sorted(df['Country'].unique())
+    selected_countries = st.multiselect("Select countries", countries, default=countries)
+
+    # Model selection
+    model_type = st.selectbox("Select model type", ["Linear Regression", "Ridge", "Lasso", "Random Forest"])
+    if model_type == "Ridge":
+        alpha = st.slider("Ridge alpha", 0.01, 10.0, 1.0)
+    if model_type == "Lasso":
+        alpha = st.slider("Lasso alpha", 0.01, 10.0, 0.1)
+    if model_type == "Random Forest":
+        n_estimators = st.slider("Number of trees", 10, 200, 100, step=10)
+
+    # Filter data
+    df = df[df['Country'].isin(selected_countries)].dropna(subset=[y_col] + x_vars)
+    if len(df) > 5 and x_vars:
+        X = df[x_vars]
+        y = df[y_col]
+        # Model fitting
+        if model_type == "Linear Regression":
+            model = LinearRegression()
+        elif model_type == "Ridge":
+            model = Ridge(alpha=alpha)
+        elif model_type == "Lasso":
+            model = Lasso(alpha=alpha)
+        elif model_type == "Random Forest":
+            model = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
+        model.fit(X, y)
+        y_pred = model.predict(X)
+        r2 = model.score(X, y)
+        st.write(f"**R²:** {r2:.3f}")
+        if hasattr(model, "coef_"):
+            st.write("**Coefficients:**", dict(zip(x_vars, model.coef_)))
+        if hasattr(model, "intercept_"):
+            st.write("**Intercept:**", model.intercept_)
+        # Plot actual vs predicted
+        fig, ax = plt.subplots()
+        ax.scatter(y, y_pred, alpha=0.7)
+        ax.plot([y.min(), y.max()], [y.min(), y.max()], "r--")
+        ax.set_xlabel("Actual")
+        ax.set_ylabel("Predicted")
+        ax.set_title(f"Actual vs Predicted for {pollutant} ({y_col})")
+        st.pyplot(fig)
+    else:
+        st.info("Select at least one X variable and enough data.")
+
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            play_sound()
+            switch_section("Air Quality Predictor")  # update appropriately
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            play_sound()
+            switch_section("Discussion")  # update appropriately
+            st.rerun()
 
 elif section == "Discussion":
     st.title("Discussion: Beyond the Dashboard 🚗📊")
@@ -691,7 +824,7 @@ elif section == "Discussion":
     - **EVs**: The production of EV batteries requires the extraction of rare earth elements and minerals like lithium, cobalt, and nickel. Mining these materials can lead to deforestation, water contamination, and human rights concerns in mining regions.
     """)
 
-    st.image("https://media.giphy.com/media/3o7TKP9lnyMAk3p2yI/giphy.gif", caption="Mining for EV batteries: A hidden environmental cost?", use_container_width =True)
+    st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXQxbTBmMTRsOGtxM2ZxbGFoc2dkanY5aWM4YnFrMXNzdGM2djRuMiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/282FVV3gOTojMwgcDm/giphy.gif", caption="Mining for EV batteries: A hidden environmental cost?", use_container_width =True)
 
     st.write("""
     Future analyses could incorporate lifecycle assessments (LCAs) to provide a more holistic view of the environmental impacts of both vehicle types. LCAs would help quantify the trade-offs between tailpipe emissions and upstream emissions.
@@ -728,15 +861,17 @@ elif section == "Discussion":
     """)
 
     # Add a motivational GIF or image
-    st.image("https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_container_width =True)
+    st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWloOWNlazZ6eDVzaG91M2F4YTRxaDd4enhlZnBiMXQxaHI2d2M5dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Vfhj19PusenfO/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_container_width =True)
 
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):
-            switch_section("Air Quality Predictor")  # update appropriately
+            play_sound()
+            switch_section("Custom Regression Builder")  # update appropriately
             st.rerun()
     with col3:
         if st.button("Next ➡️"):
+            play_sound()
             switch_section("Conclusions")  # update appropriately
             st.rerun()
 
@@ -755,5 +890,6 @@ elif section == "Conclusions":
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):
+            play_sound()
             switch_section("Discussion")  # update appropriately
             st.rerun()

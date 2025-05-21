@@ -5,6 +5,7 @@ import seaborn as sns
 import os
 import pathlib
 import numpy as np
+from PIL import Image
 
 # Set page configuration
 st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
@@ -622,6 +623,9 @@ elif section == "Air Quality Predictor":
 
     y_pred_plot = model.predict(X_plot)
 
+    # Clip predicted values to be >= 0
+    y_pred_plot = np.clip(y_pred_plot, 0, None)
+    pred = max(pred, 0)
 
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.plot(af_fleet_range, y_pred_plot, label="Predicted")

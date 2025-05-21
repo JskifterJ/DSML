@@ -12,3 +12,4 @@ lazypredict
 scipy
 geopandas
 cartopy
+PIL

@@ -137,35 +137,33 @@ elif section == "EDA":
     ax.set_ylabel("BEV Proportion")
     st.pyplot(fig)
 
-    # Air Quality Trends (Placeholder for future data)
-    st.subheader("Air Quality Trends")
-    st.write("Air quality data visualizations will be added here.")
+    # --- NEW: Show static EDA figures from figures/EDA ---
+    st.subheader("Air Quality EDA Visualizations")
+    st.write("Explore the following visualizations to understand the relationship between EV adoption and air quality metrics.")
+    st.write("These figures provide insights into the trends and distributions of air quality metrics across different countries and time periods.")
+    st.write("Click on the images to view them in full size.")
+    st.write("Note: Some figures may not be available if the corresponding files are missing.")
+    
+    # List of figures to show (add or remove as needed)
+    eda_figures = [
+        ("Mean NO₂ Value by Country", "figures/EDA/aq_mean_NO2_by_country.png"),
+        ("Mean CO₂ Value by Country", "figures/EDA/aq_mean_CO2_by_country.png"),
+        ("Hourly Pattern of NO₂ by Country", "figures/EDA/aq_hourly_pattern_NO2_by_country.png"),
+        ("Hourly Pattern of CO₂ by Country", "figures/EDA/aq_hourly_pattern_CO2_by_country.png"),
+        ("Distribution of NO₂ Levels Across Countries", "figures/EDA/aq_distribution_of_NO2_by_country.png"),
+        ("Distribution of CO₂ Levels Across Countries", "figures/EDA/aq_distribution_of_CO2_by_country.png"),
+        ("Average CO₂ Levels (Full Week Daytime) Over Years by Country", "figures/EDA/aq_avg_annual_weekdaytime_CO2_by_country.png"),
+        # Add more as needed, matching your actual filenames
+    ]
 
-    aq_data = pd.read_csv("results/country_specific_pollutant_levels.csv")
-    unique_pollutants = aq_data['Pollutant'].unique()
-    n_pollutants = len(unique_pollutants)
-    ncols = 2
-    nrows = (n_pollutants + 1) // ncols
+    for caption, fig_path in eda_figures:
+        if os.path.exists(fig_path):
+            st.image(fig_path, caption=caption, use_column_width=True)
+        else:
+            st.warning(f"Figure not found: {fig_path}")
 
-    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(15, 5 * nrows), constrained_layout=True)
-    axes = axes.flatten()
-    for ax, pollutant in zip(axes, unique_pollutants):
-        sns.lineplot(
-            data=aq_data[aq_data['Pollutant'] == pollutant],
-            x='Year', y='AnnualAvg_fullweek_Daytime', hue='Country', marker='o', ax=ax
-        )
-        ax.set_title(f"{pollutant} Levels by Country")
-        ax.set_xlabel("Year")
-        ax.set_ylabel("Annual Avg (Daytime)")
-        ax.grid(True)
-        ax.legend(title='Country', bbox_to_anchor=(1.05, 1), loc='upper left')
-
-    # Hide unused subplots if any
-    for ax in axes[len(unique_pollutants):]:
-        ax.set_visible(False)
-
-    # Show the full plot in Streamlit
-    st.pyplot(fig)
+    # Optionally, add a note
+    st.info("More detailed EDA and interactive plots can be found in the project notebooks.")
 
 
 elif section == "Analysis":

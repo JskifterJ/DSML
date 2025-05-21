@@ -200,6 +200,37 @@ elif section == "Introduction":
     st.markdown("> These formulas help guide our interpretation of data across Denmark, Sweden, Norway, Netherlands, Austria, and Switzerland.")
 
 
+    st.subheader("🌍 Why These Countries?")
+
+    st.write("""
+    Understanding the local impact of EV adoption requires comparing countries that are both *diverse enough to show contrast* and *similar enough for meaningful analysis*.
+
+    We focused on six European countries that offer this balance:
+
+    - 🇳🇴 *Norway, 🇸🇪 **Sweden, and 🇩🇰 **Denmark* are EV front-runners with supportive policies and relatively *isolated air basins*, reducing cross-border pollution noise.
+    - 🇨🇭 *Switzerland* and 🇦🇹 *Austria* share *mountainous topographies* where smog and air stagnation amplify pollution patterns.
+    - 🇳🇱 *The Netherlands* adds contrast with its *urban density*, flat terrain, and advanced EV infrastructure.
+
+    All six countries are part of the *EU or EEA*, aligning on environmental regulation and data availability—while exhibiting distinct adoption rates and geography-driven pollution behaviors.
+
+    """)
+
+    st.markdown("#### Country Comparison Overview")
+    st.write("To support this rationale, we compiled key attributes across the selected countries:")
+
+    # Display the CSV file as a table
+    import pandas as pd
+
+    csv_path = "figures/EDA/ev_country_comparison.csv"
+
+    if os.path.exists(csv_path):
+        ev_comparison_df = pd.read_csv(csv_path)
+        st.write("### EV Adoption, Geography, Policy, and Air Quality Regulation in Selected Countries")
+        st.dataframe(ev_comparison_df, use_container_width=True)
+    else:
+        st.warning(f"CSV file not found: {csv_path}")
+    
+
     st.subheader("What You'll Find in This Dashboard")
     st.write("""
     This dashboard is divided into several sections to guide you through the analysis:
@@ -361,6 +392,26 @@ elif section == "EDA":
         ("Number of Unique Air Quality Stations per Country", "figures/EDA/station_density_map.png",
         "🔹 Austria and Sweden have the most dense monitoring networks. Switzerland has fewer stations, which may introduce spatial sampling bias in national aggregates.")
     ]
+
+    aq_figures.extend([
+        
+        ("Average Weekday Daytime Pollution Levels by Country and Pollutant", "figures/EDA/aq_heatmap_weekdaydaytime.png",
+        "🔹 Daytime pollution levels are highest for CO₂ and PM2.5 in Austria, Denmark and Norway."),
+
+        ("Average Weekday Daytime Pollution Levels (Rush Hour)", "figures/EDA/aq_heatmap_weekdayrushhour.png",
+        "🔹 Rush Hour pollution levels display subtle shifts with NO2 and PM2.5 levels slightly increasing in nost countries."),
+
+        ("Average Difference Between Weekday Daytime and Rush Hour Levels", "figures/EDA/aq_difference_heatmaps.png",
+        "🔹 Rush hour peaks are most pronounced in Austria and Norway, highlighting the impact of commuter traffic. Switzerland shows a slight decline during rush hours."),
+
+        ("Correlation Heatmaps by Country", "figures/EDA/aq_correlation_heatmaps.png",
+        "🔹 Correlation heatmaps reveal strong relationships between NO₂, NOₓ, and PM pollutants across countries. CO₂ shows weaker correlations, reflecting its broader energy-related sources."),
+
+        ("Seasonal Patterns in Pollutant Levels by Country", "figures/EDA/aq_seasonal_patterns_per_country.png",
+        "🔹 Pollutant levels vary seasonally, with winter showing higher concentrations for most pollutants. This reflects seasonal heating and meteorological effects."),
+
+    ])
+
 
     for caption, path, insight in aq_figures:
         if os.path.exists(path):
@@ -543,6 +594,35 @@ elif section == "Literature Review":
     - Pollution reduction benefits depend on EV lifecycle emissions and the energy mix used for electricity generation.
     """)
     st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2018.04.040)")
+
+
+    # Study 3
+    st.subheader("Study 3: Borge et al. (2016)")
+    st.write("""
+    **Goal:** Assess the impact of electric vehicle (EV) adoption on air pollution levels along a major highway in Madrid, Spain.
+    """)
+    st.write("""
+    **Findings:**
+    - Replacing 50% of light-duty vehicles with EVs could reduce nitrogen dioxide (NO₂) and nitrogen oxides (NOₓ) concentrations by approximately 5.5% in areas adjacent to the highway.
+    - The study emphasizes that while EVs can contribute to air quality improvements, the overall impact is modest and depends on the extent of EV adoption and other local factors.
+    - No significant CO₂ reductions are reported, as the focus is primarily on local pollutants.
+    """)
+    st.write("[Read more](https://doi.org/10.1016/j.apenergy.2016.03.027)")
+
+    # Study 4
+    st.subheader("Study 4: Requia et al. (2016)")
+    st.write("""
+    **Goal:** Evaluate the episodic impacts of plug-in electric vehicle (PEV) adoption on air quality and public health in the United States.
+    """)
+    st.write("""
+    **Findings:**
+    - PEV adoption leads to notable reductions in ozone (O₃) and fine particulate matter (PM₂.₅) during high pollution episodes, especially in urban areas.
+    - Air quality improvements are region-specific, with the largest benefits in densely populated, high-emission zones.
+    - Public health gains include reduced respiratory and cardiovascular issues, with potential decreases in mortality rates.
+    - The effectiveness of EVs in improving air quality depends heavily on the electricity generation mix—regions with cleaner grids show the strongest benefits.
+    """)
+    st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2016.07.005)")
+
 
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
@@ -893,15 +973,33 @@ elif section == "Discussion":
             st.rerun()
 
 elif section == "Conclusions":
-    st.title("Conclusions and Alternative Explanations")
-    st.write("""
-    **Key Findings:**
-    - Summarize the main findings from the analysis.
-    - Discuss whether EV adoption has significantly impacted air quality.
+    st.title("Conclusions: The Road Ahead 🚗🌍")
+    st.subheader("🧠 Main Takeaways: What Did We Learn?")
+    st.markdown("""
+    - **EV adoption shows localized but non-uniform links to improved air quality**, especially for pollutants like **NO₂** and **PM2.5**, which are closely tied to traffic emissions.
+    
+    - **Carbon dioxide (CO₂) trends are harder to explain** with EV data alone, likely due to energy production, industry, and transboundary effects—underscoring the complexity of global emissions accounting.
+    
+    - **Random Forest models capture complex relationships best**, highlighting the potential of non-linear machine learning for environmental modeling.
+   
+     - **Country-specific dynamics matter**: Strong relationships were seen in countries like the Netherlands and Sweden, while others (e.g., Norway, Switzerland) had lower predictive performance, likely due to external confounding factors.
+    
+    - **Correlation ≠ causation**: Our models reveal patterns, but we cannot say definitively that EVs caused these changes—structural and behavioral factors remain critical.
+    """)
 
-    **Alternative Explanations:**
-    - Consider other factors that may influence air quality (e.g., industrial emissions, weather patterns).
-    - Highlight limitations of the analysis.
+    st.image("https://media.giphy.com/media/xTiTnHXbRoaZ1B1Mo8/giphy.gif", caption="The road ahead: data-powered and cleaner 🌱", use_container_width=True)
+
+    st.subheader("🚀 Next Actionable Moves")
+    st.markdown("""
+    - **Deploy Causal Inference Techniques**: We plan to extend the project by implementing **causal inference models** (e.g., difference-in-differences, instrumental variables, or causal forests) to better isolate the effect of EV adoption from co-occurring factors like policy changes or economic shifts.
+   
+    - **Integrate Geospatial and High-Resolution Temporal Data**:By incorporating **satellite-based pollution data** and **hourly monitoring station feeds**, we can better capture **short-term spikes** and **urban microclimates**, improving the spatial accuracy of our predictions.
+    
+    - **Merge with Grid and Energy Mix Data**:To bridge regional and global impacts, we will link EV adoption with **electric grid data and lifecycle emission factors**, evaluating whether “clean” EVs truly displace emissions or shift them upstream.
+    
+    - **Simulate Policy Scenarios**:Using our trained models, we aim to **simulate hypothetical policy changes** — like EV subsidies or ICE vehicle bans — to evaluate their projected impact on different pollutants.
+    
+    - **Collaborate with Policy Experts or City Planners**:Our findings offer a compelling starting point for **evidence-based policymaking**. We hope to share results with local stakeholders to refine urban mobility strategies or inform low-emission zone designs.
     """)
 
     col1, col2, col3 = st.columns([1, 5, 1])

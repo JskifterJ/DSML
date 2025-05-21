@@ -94,7 +94,7 @@ if section == "Dashboard":
             st.session_state["section"] = "Analysis"
             st.rerun()
 
-    col4, col5, col6 = st.columns(3)
+    col4, col5, col6, col7 = st.columns(4)
     with col4:
         if st.button("📚 Literature Review"):
             play_sound()
@@ -106,6 +106,11 @@ if section == "Dashboard":
             st.session_state["section"] = "Air Quality Predictor"
             st.rerun()
     with col6:
+        if st.button("🔥 Custom Regression Builder"):
+            play_sound()
+            st.session_state["section"] = "Custom Regression Builder"
+            st.rerun()
+    with col7:
         if st.button("🔚 Conclusions"):
             play_sound()
             st.session_state["section"] = "Conclusions"

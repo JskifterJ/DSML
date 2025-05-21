@@ -3,9 +3,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import pathlib
+import numpy as np
 
 # Set page configuration
 st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
+
+
+def switch_section(new_section):
+    st.session_state["section"] = new_section
 
 # Load processed data
 @st.cache_data
@@ -17,43 +23,66 @@ data = load_data()
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Dashboard", "Introduction", "EDA", "Analysis", "Air Quality Predictor", "Literature Review", "Discussion", "Conclusions"])
+# Initialize session state
+if "section" not in st.session_state:
+    st.session_state["section"] = "Dashboard"
 
-# Dashboard page
+# Sidebar controls
+st.sidebar.title("Navigation")
+selected = st.sidebar.radio("Go to", ["Dashboard", "Introduction", "EDA", "Analysis", "Air Quality Predictor", "Literature Review", "Discussion", "Conclusions"])
+
+# Update session state based on sidebar
+if selected != st.session_state["section"]:
+    st.session_state["section"] = selected
+    st.rerun()
+
+# Use section for routing
+section = st.session_state["section"]
+
+if "section" not in st.session_state:
+    st.session_state.section = "Dashboard"
+
 if section == "Dashboard":
     st.title("Welcome to the EV Impact Dashboard 🚗🌍")
-    st.write("Navigate to different sections of the analysis using the buttons below:")
+    st.write("Navigate to different sections using the buttons below:")
 
-    # Create a grid layout with buttons
     col1, col2, col3 = st.columns(3)
-
     with col1:
-        if st.button("Introduction"):
+        if st.button("📘 Introduction"):
             st.session_state.section = "Introduction"
+            st.rerun()
     with col2:
-        if st.button("EDA"):
+        if st.button("📊 EDA"):
             st.session_state.section = "EDA"
+            st.rerun()
     with col3:
-        if st.button("Analysis"):
+        if st.button("📈 Analysis"):
             st.session_state.section = "Analysis"
+            st.rerun()
 
     col4, col5, col6 = st.columns(3)
-
     with col4:
-        if st.button("Literature Review"):
+        if st.button("📚 Literature Review"):
             st.session_state.section = "Literature Review"
+            st.rerun()
     with col5:
-        if st.button("Conclusions"):
+        if st.button("🧪 Air Quality Predictor"):
+            st.session_state.section = "Air Quality Predictor"
+            st.rerun()
+    with col6:
+        if st.button("🔚 Conclusions"):
             st.session_state.section = "Conclusions"
+            st.rerun()
 
-    st.write("Use the sidebar to navigate as well!")
+    st.image("https://cdn-icons-png.flaticon.com/512/1680/1680170.png", width=100, caption="Clean Mobility")
+
 
 # Conditional logic for other sections
 elif section == "Introduction":
     st.title("Electric Vehicles and Air Quality Analysis 🚗🌍")
     
     # Add a fun introductory GIF or image
-    st.image("https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif", caption="Driving into a cleaner future!", use_column_width=True)
+    st.image("https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif", caption="Driving into a cleaner future!", use_container_width =True)
 
     st.write("""
     Welcome to the **Electric Vehicle (EV) Impact Dashboard**! 🌱🚗  
@@ -147,7 +176,18 @@ elif section == "Introduction":
     """)
 
     # Add a motivational GIF or image
-    st.image("https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", caption="Together, we can drive change!", use_column_width=True)
+    st.image("https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", caption="Together, we can drive change!", use_container_width =True)
+
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            switch_section("Introduction")  # update appropriately
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            switch_section("EDA")  # update appropriately
+            st.rerun()
+
 
 
 elif section == "EDA":
@@ -209,42 +249,107 @@ elif section == "EDA":
         """)
 
 
-    # EV Adoption Trends
-    st.subheader("EV Adoption Trends")
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.lineplot(data=data, x="Index", y="BEV", hue="Country", ax=ax)
-    ax.set_title("Battery Electric Vehicle (BEV) Trends Over Time")
-    ax.set_xlabel("Year")
-    ax.set_ylabel("BEV Proportion (% of vehicle fleet)")
-    st.pyplot(fig)
+    # ensure the EDA directory is loaded
+    BASE_DIR = pathlib.Path(__file__).parent.parent  # DSML/
+    EDA_DIR = BASE_DIR / "figures" / "EDA"
 
-    # --- NEW: Show static EDA figures from figures/EDA ---
-    st.subheader("Air Quality EDA Visualizations")
+
+    # --- IMPROVED: Show static EDA figures from ../figures/EDA with descriptions ---
+    st.subheader("Air Quality & Fleet EDA Visualizations")
     st.write("Explore the following visualizations to understand the relationship between EV adoption and air quality metrics.")
-    st.write("These figures provide insights into the trends and distributions of air quality metrics across different countries and time periods.")
     st.write("Click on the images to view them in full size.")
-    st.write("Note: Some figures may not be available if the corresponding files are missing.")
-    
-    # List of figures to show (add or remove as needed)
+    st.write("Note: Only figures present in the folder will be shown.")
+
+    BASE_DIR = pathlib.Path(__file__).parent.parent  # DSML/
+    EDA_DIR = BASE_DIR / "figures" / "EDA"
+
+    st.subheader("📈 Fleet Composition and Adoption Trends")
+    st.write("This section analyzes trends in fleet composition across six European countries, focusing on BEV, PHEV, and AF vehicle penetration and registration dynamics.")
+
     eda_figures = [
-        ("Mean NO₂ Value by Country", "figures/EDA/aq_mean_NO2_by_country.png"),
-        ("Mean CO₂ Value by Country", "figures/EDA/aq_mean_CO2_by_country.png"),
-        ("Hourly Pattern of NO₂ by Country", "figures/EDA/aq_hourly_pattern_NO2_by_country.png"),
-        ("Hourly Pattern of CO₂ by Country", "figures/EDA/aq_hourly_pattern_CO2_by_country.png"),
-        ("Distribution of NO₂ Levels Across Countries", "figures/EDA/aq_distribution_of_NO2_by_country.png"),
-        ("Distribution of CO₂ Levels Across Countries", "figures/EDA/aq_distribution_of_CO2_by_country.png"),
-        ("Average CO₂ Levels (Full Week Daytime) Over Years by Country", "figures/EDA/aq_avg_annual_weekdaytime_CO2_by_country.png"),
-        # Add more as needed, matching your actual filenames
+        ("Distribution of Plug-in Hybrid Electric Vehicles (PHEV) Across Countries", "figures/EDA/AF_distribution_per_country.png", 
+        "🔹 Norway and Sweden have the highest spread and median share of PHEVs, while Switzerland and Luxembourg show lower variability and median levels. This highlights more mature hybrid markets in Nordic regions."),
+
+        ("Trends in Battery Electric Vehicles (BEV) Over Time", "figures/EDA/AF_fleet_per_country_timeseries.png", 
+        "🔹 Norway leads the BEV transition with exponential growth post-2016. Other countries show steady but slower uptake, likely tied to infrastructure and incentives."),
+
+        ("Market Share of Alternative Fuel Vehicles by Country", "figures/EDA/market_share_by_country.png", 
+        "🔹 Norway stands out with high interquartile range (IQR), indicating a broad and growing adoption. The rest show tighter distributions, with Austria, Switzerland, and Denmark trailing."),
+
+        ("Distribution of New Registrations by Country", "figures/EDA/new_registrations_by_country.png", 
+        "🔹 Norway and the Netherlands show high variability and volume in alternative fuel vehicle registrations, suggesting rapid market change and policy responsiveness."),
+
+        ("Development of Alternative Fuel New Registrations Over Time", "figures/EDA/new_registrations_over_time.png", 
+        "🔹 All countries exhibit accelerating registration trends post-2018, with especially steep climbs in the Netherlands, Sweden, and Norway. This aligns with EU and national decarbonization targets.")
     ]
 
-    for caption, fig_path in eda_figures:
-        if os.path.exists(fig_path):
-            st.image(fig_path, caption=caption, use_column_width=True)
+    for caption, path, insight in eda_figures:
+        if os.path.exists(path):
+            st.image(path, caption=caption, use_container_width =True)
+            st.markdown(f"**Insight:** {insight}")
         else:
-            st.warning(f"Figure not found: {fig_path}")
+            st.warning(f"Figure not found: {path}")
 
-    # Optionally, add a note
+    st.markdown("---")
+    st.subheader("🧠 Fleet Composition Takeaways")
+    st.markdown("""
+    - **Norway** consistently leads across BEV and PHEV metrics, reflecting its aggressive incentive structure and clean grid.
+    - **Nordic countries (NO, SE)** show higher PHEV diversity, while **CH, AT, DK** follow with lagging adoption and more modest trends.
+    - **Recent acceleration in AF new registrations** across all countries signals a potential inflection point driven by policy or infrastructure readiness.
+    - These fleet dynamics set the foundation for analyzing their relationship to air quality metrics in subsequent sections.
+    """)
+
+
+    st.subheader("🌫️ Air Quality Trends and Patterns")
+    st.write("This section explores trends in pollutant levels across time and space, using data from national monitoring stations. Patterns in key metrics (CO₂, NO₂, PM) provide insight into evolving air quality amid the shift toward alternative fuel vehicles.")
+
+    aq_figures = [
+        ("CO2 Levels (Full Week Daytime) Over Years by Country", "figures/EDA/aq_avg_annual_co2_per_country.png",
+        "🔹 CO₂ levels are generally increasing in AT, DK, and CH, while NO and SE show flatter or even declining trends. Norway’s persistently low CO₂ supports the impact of its clean grid."),
+
+        ("Average Annual Pollutant Levels Over Time (All Countries)", "figures/EDA/aq_avg_annual_pollutant_over_time.png",
+        "🔹 NO₂, PM2.5, and PM10 show a clear declining trend over the past decade, suggesting overall air quality improvement. However, CO₂ has been rising slightly, likely reflecting energy mix and mobility demand."),
+
+        ("Annual Pollutant Trends by Country", "figures/EDA/aq_avg_annual_pollutant_over_time_per_country.png",
+        "🔹 The decline in NO₂ and NOₓ is widespread across countries. PM trends are more erratic, likely due to local non-exhaust sources. CO₂ remains higher in Austria and Denmark."),
+
+        ("Hourly Pattern by Pollutant (Average Across Countries)", "figures/EDA/aq_hourly_pattern_per_pollutant.png",
+        "🔹 Most pollutants show strong peaks during rush hours (around 8–9 AM and 4–6 PM), aligning with commuter traffic. CO₂ and NO₂ are especially tied to these patterns."),
+
+        ("Hourly Pattern by Pollutant and Country", "figures/EDA/aq_hourly_pattern_per_pollutant_per_country.png",
+        "🔹 Across countries, Norway and Sweden generally show lower hourly concentrations. Peaks in CO₂ and NO₂ confirm vehicular traffic’s central role in local pollution."),
+
+        ("Number of Unique Air Quality Stations per Country", "figures/EDA/station_density_map.png",
+        "🔹 Austria and Sweden have the most dense monitoring networks. Switzerland has fewer stations, which may introduce spatial sampling bias in national aggregates.")
+    ]
+
+    for caption, path, insight in aq_figures:
+        if os.path.exists(path):
+            st.image(path, caption=caption, use_container_width=True)
+            st.markdown(f"**Insight:** {insight}")
+        else:
+            st.warning(f"Figure not found: {path}")
+
+    st.markdown("---")
+    st.subheader("🧠 Air Quality Takeaways")
+    st.markdown("""
+    - **Pollutants from combustion (NO, NO₂, NOₓ)** are decreasing steadily, reflecting improved vehicle standards and rising EV penetration.
+    - **Particulate matter (PM2.5, PM10)** shows more variation, as it is also influenced by **non-exhaust sources** like tires and brakes—less responsive to EV trends.
+    - **Hourly patterns** strongly align with traffic cycles, supporting transportation as a dominant emission source in urban areas.
+    - **Country differences** reflect both technological shifts and structural factors (energy mix, urban planning, industrial activity).
+    """)
+
     st.info("More detailed EDA and interactive plots can be found in the project notebooks.")
+
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            switch_section("Introduction")  # update appropriately
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            switch_section("Analysis")  # update appropriately
+            st.rerun()
 
 
 elif section == "Analysis":
@@ -305,7 +410,7 @@ elif section == "Analysis":
     # Highlight some interesting findings
     st.markdown("### 🌟 Notable Patterns")
     best = best_results.iloc[0]
-    st.write(f"- **Best overall:** {best['Model']} for {best['Pollutant']} ({best['Target']}) with R² = {best['R2']:.2f}")
+    st.write(f"- **Best overall:** {best['Model']} for {best['Pollutant']} ({best['Target']}) with R² = {best['R2_train']:.2f}")
     st.write("- **Countries with consistently high model performance:**")
     for country in ["NO", "CH", "AT", "NL", "DK"]:
         n = best_results[best_results['Target'].str.contains(country, na=False)].shape[0]
@@ -325,9 +430,9 @@ elif section == "Analysis":
         pollutant = row['Pollutant']
         target = row['Target']
         fig_path = f"../figures/analysis/{pollutant}_{target}_regression_country_fixed_effects_model_colored.png"
-        st.markdown(f"**{i+1}. {pollutant} - {target} ({row['Model']}, R²={row['R2']:.2f})**")
+        st.markdown(f"**{i+1}. {pollutant} - {target} ({row['Model']}, R²={row['R2_train']:.2f})**")
         if os.path.exists(fig_path):
-            st.image(fig_path, caption=f"{pollutant} - {target} ({row['Model']})", use_column_width=True)
+            st.image(fig_path, caption=f"{pollutant} - {target} ({row['Model']})", use_container_width =True)
         else:
             st.warning(f"Figure not found: {fig_path}")
 
@@ -342,6 +447,16 @@ elif section == "Analysis":
     st.info("Want to explore more? Try the Air Quality Predictor tab to see how changing EV adoption could impact air quality in your country!")
 
     st.markdown("#### 🚀 Thanks for exploring with us! The road to cleaner air is full of twists, turns, and data surprises.")
+
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            switch_section("EDA")  # update appropriately
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            switch_section("Literature Review")  # update appropriately
+            st.rerun()
 
 
 elif section == "Literature Review":
@@ -375,6 +490,16 @@ elif section == "Literature Review":
     """)
     st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2018.04.040)")
 
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            switch_section("Analysis")  # update appropriately
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            switch_section("Air Quality Predictor")  # update appropriately
+            st.rerun()
+
 
 elif section == "Air Quality Predictor":
     st.title("Air Quality Predictor 🚗🌍")
@@ -386,17 +511,31 @@ elif section == "Air Quality Predictor":
     from sklearn.linear_model import LinearRegression, Ridge, Lasso
     from sklearn.ensemble import RandomForestRegressor
     import matplotlib.pyplot as plt
+    import os
+
+    import pathlib
 
     @st.cache_data
     def load_data():
-        aq = pd.read_csv("../data/processed/AQ_annual_averages.csv")
-        vehicle = pd.read_csv("../data/processed/combined_vehicle_data.csv")
+        DATA_DIR = pathlib.Path(__file__).parent.parent / "data" / "processed"
+        aq = pd.read_csv(DATA_DIR / "AQ_annual_averages.csv")
+        vehicle = pd.read_csv(DATA_DIR / "combined_vehicle_data.csv")        
         data = aq.merge(vehicle, on=['Country', 'Year'], how='left')
         return data
 
     @st.cache_data
     def load_best_results():
-        return pd.read_csv("../results/best_model_per_pollutant_target.csv")
+        results_dir = pathlib.Path(__file__).parent.parent / "results"
+        csv_path = results_dir / "best_model_per_pollutant_target.csv"
+        if not csv_path.exists():
+            st.error(f"File not found: {csv_path}")
+            return None
+        return pd.read_csv(csv_path)
+
+    best_results = load_best_results()
+    if best_results is None:
+        st.stop()
+
 
     @st.cache_resource
     def train_model(df, feature, target, model_name, country_cols):
@@ -430,7 +569,7 @@ elif section == "Air Quality Predictor":
     # Get best model for this combination
     row = best_results[(best_results['Pollutant'] == pollutant) & (best_results['Target'] == target)].iloc[0]
     model_name = row['Model']
-    r2 = row['R2']
+    r2 = row['R2_train']
 
     st.write(f"Best model: **{model_name}** (R² = {r2:.2f})")
 
@@ -444,13 +583,14 @@ elif section == "Air Quality Predictor":
     df = pd.get_dummies(df, columns=['Country'], drop_first=True)
     country_cols = [col for col in df.columns if col.startswith('Country_')]
 
+
     # Find the correct dummy column for the selected country
     country_dummy_map = {col.replace('Country_', ''): col for col in country_cols}
     selected_country_dummy = country_dummy_map.get(country, None)
 
     # User selects AF_fleet percentage
-    af_fleet_min = float(df['AF_fleet'].min())
-    af_fleet_max = float(df['AF_fleet'].max())
+    af_fleet_min = 0.0
+    af_fleet_max = 100.0
     af_fleet_default = float(df['AF_fleet'].mean())
     af_fleet = st.slider("Select AF_fleet (%)", af_fleet_min, af_fleet_max, af_fleet_default)
 
@@ -461,12 +601,10 @@ elif section == "Air Quality Predictor":
     input_vec = np.zeros((1, X.shape[1]))
     input_vec[0, 0] = af_fleet
     if selected_country_dummy:
-        # Set the selected country dummy to 1, others to 0
         idx = country_cols.index(selected_country_dummy)
         input_vec[0, 1:] = 0
         input_vec[0, idx+1] = 1  # +1 because first column is AF_fleet
     else:
-        # If country is the reference (first in alphabetical order), all dummies are 0
         input_vec[0, 1:] = 0
 
     pred = model.predict(input_vec)[0]
@@ -484,20 +622,44 @@ elif section == "Air Quality Predictor":
 
     y_pred_plot = model.predict(X_plot)
 
+
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.plot(af_fleet_range, y_pred_plot, label="Predicted")
+
     # Scatter actual data for this country
     if selected_country_dummy:
         country_mask = df[selected_country_dummy] == 1
     else:
-        # Reference country (all dummies 0)
         country_mask = df[[col for col in country_cols]].sum(axis=1) == 0
     ax.scatter(df.loc[country_mask, "AF_fleet"], df.loc[country_mask, target], color='orange', alpha=0.7, label="Actual data")
+
+    # Highlight the latest actual reading
+    if "Year" in df.columns and not df.loc[country_mask].empty:
+        latest_row = df.loc[country_mask].sort_values("Year").iloc[-1]
+        ax.scatter(latest_row["AF_fleet"], latest_row[target], color='red', s=100, edgecolor='black', label="Latest actual")
+        ax.annotate(f"Latest: {latest_row[target]:.2f} ({int(latest_row['Year'])})",
+                    (latest_row["AF_fleet"], latest_row[target]),
+                    textcoords="offset points", xytext=(0,10), ha='center', color='red', fontsize=10)
+
+    # --- Highlight the selected AF_fleet predicted value ---
+    ax.scatter([af_fleet], [pred], color='blue', s=120, edgecolor='black', zorder=5, label="Selected prediction")
+    ax.annotate(f"{pred:.2f}", (af_fleet, pred), textcoords="offset points", xytext=(0,12), ha='center', color='blue', fontsize=11, fontweight='bold')
+
     ax.set_xlabel("AF_fleet (%)")
-    ax.set_ylabel(target)
-    ax.set_title(f"{target} vs AF_fleet for {pollutant} in {country}")
+    ax.set_ylabel(pollutant)  # Use pollutant name for y-axis
+    ax.set_title(f"{pollutant} vs AF_fleet for {country}")
     ax.legend()
     st.pyplot(fig)
+
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            switch_section("Literature Review")  # update appropriately
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            switch_section("Discussion")  # update appropriately
+            st.rerun()
 
 
 elif section == "Discussion":
@@ -525,7 +687,7 @@ elif section == "Discussion":
     - **EVs**: The production of EV batteries requires the extraction of rare earth elements and minerals like lithium, cobalt, and nickel. Mining these materials can lead to deforestation, water contamination, and human rights concerns in mining regions.
     """)
 
-    st.image("https://media.giphy.com/media/3o7TKP9lnyMAk3p2yI/giphy.gif", caption="Mining for EV batteries: A hidden environmental cost?", use_column_width=True)
+    st.image("https://media.giphy.com/media/3o7TKP9lnyMAk3p2yI/giphy.gif", caption="Mining for EV batteries: A hidden environmental cost?", use_container_width =True)
 
     st.write("""
     Future analyses could incorporate lifecycle assessments (LCAs) to provide a more holistic view of the environmental impacts of both vehicle types. LCAs would help quantify the trade-offs between tailpipe emissions and upstream emissions.
@@ -562,8 +724,17 @@ elif section == "Discussion":
     """)
 
     # Add a motivational GIF or image
-    st.image("https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_column_width=True)
+    st.image("https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_container_width =True)
 
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            switch_section("Air Quality Predictor")  # update appropriately
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            switch_section("Conclusions")  # update appropriately
+            st.rerun()
 
 elif section == "Conclusions":
     st.title("Conclusions and Alternative Explanations")
@@ -576,3 +747,9 @@ elif section == "Conclusions":
     - Consider other factors that may influence air quality (e.g., industrial emissions, weather patterns).
     - Highlight limitations of the analysis.
     """)
+
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            switch_section("Discussion")  # update appropriately
+            st.rerun()

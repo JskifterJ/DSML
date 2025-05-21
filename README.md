@@ -46,7 +46,79 @@ Install additional dependencies (if needed):
 pip install -r requirements.txt
 
 Run the Streamlit app:
-streamlit run src/app.py
+streamlit run src/app.py -> NOTE: ALWAYS run from project root for file directory calls to function!
+
+
+## 🔍 Regional vs. Global Impact of EV Adoption
+
+This project examines only **local air quality** and not **global emissions** in the context of increasing electric and alternative fuel vehicle (AFV) adoption across six European countries. To better understand the results and context, here is a quick primer on regional vs. global impact of a changing passenger-vehicle fleet from internal-combustion to alternative fuels (PHEV, BEV etc.)
+
+### 🔁 Regional Impact (Urban Air Quality)
+
+\[
+\text{Regional Impact} =
+E^{\text{ICE}}_{\text{tailpipe}} +
+E^{\text{non-exhaust}}_{\text{ICE}} -
+\Delta E^{\text{EV}}_{\text{tailpipe}} -
+\Delta E^{\text{EV}}_{\text{brake}} +
+\Delta E^{\text{EV}}_{\text{tire}}
+\]
+
+- Tailpipe pollutants (CO₂, NO₂, PM) are eliminated by EVs.
+- Regenerative braking reduces brake dust, a major PM source.
+- Heavier EVs increase tire and road particulate matter emissions.
+
+> 📌 Urban residents benefit most from tailpipe reductions, but gains can be offset by non-exhaust PM—especially in cities.
+
+### 🌍 Global Impact (Lifecycle Emissions)
+
+\[
+\text{Global Impact} =
+E^{\text{fossil}}_{\text{extraction}} +
+E^{\text{EV}}_{\text{battery}} +
+E^{\text{grid}}_{\text{operation}} -
+\Delta E^{\text{ICE}}_{\text{tailpipe, lifetime}}
+\]
+
+- Includes emissions from fossil fuel production and battery manufacturing.
+- Depends heavily on the national electricity mix used for charging.
+- EVs displace ICE vehicles, avoiding long-term tailpipe CO₂.
+
+> ⚠️ An EV powered by renewables is far cleaner than one powered by coal. Lifecycle analysis is key for climate policy, addressing all upstream (fuel extraction, processing etc., vehicle components (rare earths) etc.).
+
+These formulas frame the limitations of our regression models and data interpretations, since the objective and scope of this study is to evaluate regional patterns observing only fleet-% of alternative (read primarily BEV) vehicles across six high-penetration EU countries: DK, SE, NO, AT, CH and NL.
+
+
+
+📊 Exploratory Data Analysis (EDA)
+🚗 Fleet Composition Across Europe
+We analyzed the penetration of alternative fuel vehicles (AFVs), including battery electric vehicles (BEVs) and plug-in hybrids (PHEVs), across six high-EV-adoption countries: Austria (AT), Switzerland (CH), Denmark (DK), Netherlands (NL), Norway (NO), and Sweden (SE).
+
+📈 Plot	🧠 Key Insight
+Distribution of PHEVs by Country	Nordic countries (NO, SE) show broader adoption and higher PHEV shares than CH and LX.
+BEV Trends Over Time	Norway shows exponential BEV growth post-2016; other countries follow gradually.
+AFV Market Share	Norway again leads in both central tendency and spread; CH and AT are more conservative.
+New AFV Registrations by Country	Norway and Netherlands show the highest volume and variance—reflecting policy impact.
+AFV Registrations Over Time	Steep uptick across all countries since 2018, especially in NL, NO, and SE.
+
+🧠 Fleet EDA Takeaway: Norway consistently leads in BEV and PHEV integration. Recent growth across countries supports the hypothesis that AFV adoption has accelerated post-2018 due to policy and infrastructure improvements.
+
+🌫️ Air Quality Trends and Dynamics
+This section evaluates the impact of mobility transitions on urban air quality by analyzing CO₂, NO, NO₂, NOₓ, PM10, and PM2.5 levels.
+
+📉 Plot	🧠 Key Insight
+CO₂ Levels Over Time by Country	Austria and Denmark show the highest CO₂ levels; Norway consistently lowest.
+Annual Trends of Pollutants (All Countries)	NO₂, NOₓ, PMs are falling; CO₂ shows a slight increase—likely energy mix dependent.
+Annual Trends by Country	NO₂/NOₓ declines are consistent; PM10 is noisier due to non-exhaust factors.
+Hourly Pollution Patterns (All Countries)	Strong diurnal patterns—spikes during rush hours. CO₂ and NO₂ align with traffic.
+Hourly Patterns by Country	Norway/Sweden show flatter curves and lower peak values; others show AM/PM surges.
+Air Quality Station Density	AT and SE have most stations; CH has fewer, which may limit spatial granularity.
+
+🧠 Air Quality EDA Takeaway: Local pollutants from combustion (NOₓ, NO₂) are decreasing, aligned with EV adoption and stricter emissions standards. PMs show more erratic behavior, reinforcing the importance of considering non-exhaust sources.
+
+
+Analysis:
+
 
 Notes: 
 - while one could run the models based on transport-specific data, this data is merely a proxy for the average fuel consumption per kilometer of the transport fleet. With increasing adoption of Alternative Fuels (AF) vehicles in the fleet, this number will obviously be directled correlated with the change in emission factors such as CO2 and NO. Further, this would neglect the emissions of electricity production mix which BEV and PHEV vehicles require, thus severely graying the true picture of regional emission-data corresponding to passenger car emissions. 

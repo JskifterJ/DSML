@@ -528,16 +528,57 @@ elif section == "Analysis":
     import os
     import matplotlib.pyplot as plt
 
-    # Try to find the corresponding figure files for the top 3
-    for i, row in best_results.head(3).iterrows():
-        pollutant = row['Pollutant']
-        target = row['Target']
-        fig_path = f"../figures/analysis/{pollutant}_{target}_regression_country_fixed_effects_model_colored.png"
-        st.markdown(f"**{i+1}. {pollutant} - {target} ({row['Model']}, R²={row['R2_train']:.2f})**")
-        if os.path.exists(fig_path):
-            st.image(fig_path, caption=f"{pollutant} - {target} ({row['Model']})", use_container_width =True)
+    # --- Section: Model Results per Pollutant ---
+    st.subheader("📊 Model Results per Pollutant")
+    st.markdown("To interpret model performance across pollutants and countries, we focus on the *full week rush-hour* timescale. This view maximizes clarity, captures consistent time windows most impacted by traffic, and highlights inter-country variation in model fit.")
+
+    # Helper function to display image and bullet points
+    def show_model_analysis(pollutant_name, bullet_points):
+        import pathlib
+        BASE_DIR = pathlib.Path(__file__).parent.parent  # DSML/
+        analysis_dir = BASE_DIR / "figures" / "analysis"
+        image_path = analysis_dir / f"{pollutant_name}_AnnualAvg_fullweek_RushHour_regression_country_fixed_effects_model_colored.png"
+        if image_path.exists():
+            st.image(str(image_path), caption=f"Regression results for {pollutant_name}")
         else:
-            st.warning(f"Figure not found: {fig_path}")
+            st.warning(f"Figure not found for {pollutant_name}")
+        st.markdown("\n".join([f"- {pt}" for pt in bullet_points]))
+
+
+    # --- 🟢 CO2 ---
+    show_model_analysis("CO2", [
+        "The Netherlands and Sweden show a high model fit across all methods, suggesting strong internal consistency in how fleet composition aligns with CO₂ levels.",
+        "Switzerland and Norway display low predictive performance, hinting at potential missing variables or measurement discrepancies in their CO₂ reporting.",
+        "Random Forest performs best overall, capturing more of the nonlinear variance, especially in countries like Austria (R² = 0.71)."
+    ])
+
+    # ---🟠 NO2 ---
+    show_model_analysis("NO2", [
+        "Model fits are consistently strong in Austria, Switzerland, and the Netherlands, suggesting stable relationships in NO₂ emissions and fleet data.",
+        "Random Forest shows the strongest generalization, particularly for SE and CH where test R² approaches 1.0.",
+        "DK again appears as a difficult case for modeling, though NO₂ performs better than other pollutants."
+    ])
+
+    # ---🟣 NOX as NO2 ---
+    show_model_analysis("NOX as NO2", [
+        "The Netherlands is again a standout, with high test R² across all models.",
+        "Norway and Austria show moderate predictive power with test R² around 0.3 to 0.6, indicating partial but not robust signal capture.",
+        "For Sweden, even non-linear models struggle to predict NOx levels, which could point to external factors beyond EV share."
+    ])
+
+    # ---⚪ PM10 ---
+    show_model_analysis("PM10", [
+        "Strongest fits appear in the Netherlands and Switzerland, suggesting a clear structural link between alternative fuel uptake and PM10 levels in these regions.",
+        "Austria shows moderate test scores, while countries like DK and NO present greater difficulty in capturing patterns, possibly due to data variability or local factors."
+    ])
+
+    # ---⚫ PM2.5 ---
+    show_model_analysis("PM2.5", [
+        "The highest test scores across pollutants are seen here, especially for Switzerland and Sweden, where Random Forest reaches near-perfect R².",
+        "Austria and Norway also show reliable performance, suggesting PM2.5 may be the most consistently modelled pollutant in relation to fleet share.",
+        "This consistency across countries may reflect the relatively uniform impact of vehicle emissions on fine particulate matter.",
+    ])
+
 
     st.markdown("---")
     st.subheader("🤔 Alternative Explanations & Limitations")
@@ -550,6 +591,7 @@ elif section == "Analysis":
     st.info("Want to explore more? Try the Air Quality Predictor tab to see how changing EV adoption could impact air quality in your country!")
 
     st.markdown("#### 🚀 Thanks for exploring with us! The road to cleaner air is full of twists, turns, and data surprises.")
+
 
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:

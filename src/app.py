@@ -2,15 +2,15 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 # Set page configuration
 st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
 
-
 # Load processed data
 @st.cache_data
 def load_data():
-    fleet_data = pd.read_csv("/Users/clarabottinelli/Documents/GitHub/DSML/data/processed/combined_fleet_data.csv")
+    fleet_data = pd.read_csv("../data/processed/combined_fleet_data.csv")
     return fleet_data
 
 data = load_data()
@@ -87,6 +87,53 @@ elif section == "Introduction":
     - The relationship between EV adoption and air quality improvements.
     """)
 
+    st.subheader("⚖️ Regional vs. Global Impact of EV Adoption")
+
+    st.markdown("""
+    To fully understand the environmental effects of shifting to electric and alternative fuel vehicles (AFVs), we must distinguish between **regional** and **global** impacts.
+
+    While EVs remove local tailpipe emissions, their lifecycle still includes **upstream emissions** from energy and material sourcing.
+    """)
+
+    with st.expander("🔁 Regional Impact (Local Air Pollution)"):
+        st.latex(r"""
+        \text{Regional Impact} =
+        E^{\text{ICE}}_{\text{tailpipe}} +
+        E^{\text{non-exhaust}}_{\text{ICE}} -
+        \Delta E^{\text{EV}}_{\text{tailpipe}} -
+        \Delta E^{\text{EV}}_{\text{brake}} +
+        \Delta E^{\text{EV}}_{\text{tire}}
+        """)
+        st.markdown("""
+        - $E^{\\text{ICE}}_{\\text{tailpipe}}$: Local pollutants from ICE cars (CO₂, NO₂, PM)
+        - $E^{\\text{non-exhaust}}_{\\text{ICE}}$: Particulate matter from brake and tire wear
+        - $\\Delta E^{\\text{EV}}_{\\text{tailpipe}}$: Zero local emissions from EV tailpipes
+        - $\\Delta E^{\\text{EV}}_{\\text{brake}}$: Regenerative braking reduces brake dust
+        - $\\Delta E^{\\text{EV}}_{\\text{tire}}$: Heavier EVs increase tire and road dust
+
+        📍 **Why this matters**: Not all benefits are linear. EVs clean the air we breathe, but tire-related PM may rise—especially in cities.
+        """)
+
+    with st.expander("🌍 Global Impact (Life-Cycle Emissions)"):
+        st.latex(r"""
+        \text{Global Impact} =
+        E^{\text{fossil}}_{\text{extraction}} +
+        E^{\text{EV}}_{\text{battery}} +
+        E^{\text{grid}}_{\text{operation}} -
+        \Delta E^{\text{ICE}}_{\text{tailpipe, lifetime}}
+        """)
+        st.markdown("""
+        - $E^{\\text{fossil}}_{\\text{extraction}}$: Emissions from oil production, transport, and refining
+        - $E^{\\text{EV}}_{\\text{battery}}$: Mining and manufacturing of EV batteries
+        - $E^{\\text{grid}}_{\\text{operation}}$: Electricity generation for EV charging (energy mix critical)
+        - $\\Delta E^{\\text{ICE}}_{\\text{tailpipe, lifetime}}$: Avoided lifetime emissions from displaced ICE mileage
+
+        🌐 **Why this matters**: EVs are only as clean as the power and materials that support them. A coal-powered EV isn’t green by default.
+        """)
+
+    st.markdown("> These formulas help guide our interpretation of data across Denmark, Sweden, Norway, Netherlands, Austria, and Switzerland.")
+
+
     st.subheader("What You'll Find in This Dashboard")
     st.write("""
     This dashboard is divided into several sections to guide you through the analysis:
@@ -118,15 +165,49 @@ elif section == "EDA":
         - **AnnualAvg_weekend_RushHour**: Average pollutant value during rush hours, weekends only.
         """)
 
+
     with st.expander("🧪 Pollutant Descriptions"):
         st.markdown("""
-    - 🟢 **CO₂ (Carbon Dioxide)**: Greenhouse gas, not directly harmful at ambient levels.
-    - 🟠 **NO₂ (Nitrogen Dioxide)**: Harmful pollutant from vehicles/industry, affects lungs.
-    - 🔵 **NO (Nitric Oxide)**: Precursor to NO₂, from combustion.
-    - 🟣 **NOₓ as NO₂**: Total nitrogen oxides, regulatory metric.
-    - ⚫ **PM2.5 (Fine Particulate)**: <2.5μm, penetrates lungs, health risk.
-    - ⚪ **PM10 (Coarse Particulate)**: <10μm, respiratory irritation.
-    """)
+        #### Understanding the Key Air Pollutants
+
+        Air quality is influenced by various pollutants, each with unique sources and health impacts. Here's what we're tracking:
+
+        - 🟢 **CO₂ (Carbon Dioxide)**  
+        - **Source**: Internal combustion engine (ICE) fuel combustion.  
+        - **Notes**: Not directly toxic at ambient levels, but a key greenhouse gas driving climate change.  
+        - **Confounders**: Also produced by industry and heating systems. Cannot be reduced by EVs unless power generation is clean.
+
+        - 🟠 **NO₂ (Nitrogen Dioxide)**  
+        - **Source**: High-temperature combustion in ICE vehicles (especially diesel engines).  
+        - **Health Risk**: Irritates lungs, exacerbates asthma, especially dangerous for children and elderly.  
+        - **Confounders**: Also emitted by industrial processes and heating.
+
+        - 🔵 **NO (Nitric Oxide)**  
+        - **Source**: Immediate product of combustion, especially in traffic-heavy areas.  
+        - **Reaction**: Converts rapidly to NO₂ in the atmosphere.  
+        - **Notes**: Monitored as a proxy for recent vehicle emissions.
+
+        - 🟣 **NOₓ (Nitrogen Oxides)**  
+        - **Definition**: Combined NO + NO₂, often reported as “NOₓ as NO₂”.  
+        - **Source**: Mostly traffic emissions, especially diesel vehicles.  
+        - **Importance**: A regulatory metric for urban air quality assessments.
+
+        - ⚫ **PM2.5 (Fine Particulate Matter <2.5µm)**  
+        - **Source**: Combustion in ICE vehicles, but also **non-exhaust** sources like **brake dust, tire wear, and road abrasion**.  
+        - **Health Risk**: Penetrates deep into lungs and bloodstream; linked to respiratory and cardiovascular diseases.  
+        - **EV Factor**: Regenerative braking reduces brake dust, but battery weight may increase tire and road wear PM.
+
+        - ⚪ **PM10 (Coarse Particulate Matter <10µm)**  
+        - **Source**: Larger particles from **tire wear, road dust, and mechanical abrasion**.  
+        - **EV Factor**: Heavier vehicles (like BEVs) tend to increase PM10 from tire-road interactions.  
+        - **Confounders**: Also influenced by construction, agriculture, and weather (wind re-suspension).
+
+        ---
+        **Note**: Non-tailpipe (non-exhaust) emissions like tire and brake wear are increasingly relevant with the rise of EVs. These sources do not benefit from the "zero emissions" of EV drivetrains and may even increase in some cases.
+
+        To interpret trends responsibly, both **vehicle type** and **driving patterns** must be considered in context of these emissions.
+        """)
+
 
     # EV Adoption Trends
     st.subheader("EV Adoption Trends")
@@ -134,7 +215,7 @@ elif section == "EDA":
     sns.lineplot(data=data, x="Index", y="BEV", hue="Country", ax=ax)
     ax.set_title("Battery Electric Vehicle (BEV) Trends Over Time")
     ax.set_xlabel("Year")
-    ax.set_ylabel("BEV Proportion")
+    ax.set_ylabel("BEV Proportion (% of vehicle fleet)")
     st.pyplot(fig)
 
     # --- NEW: Show static EDA figures from figures/EDA ---

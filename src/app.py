@@ -6,6 +6,8 @@ import os
 import pathlib
 import numpy as np
 from PIL import Image
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.ensemble import RandomForestRegressor
 
 # Set page configuration
 st.set_page_config(page_title="EV Impact on Air Quality", layout="centered")
@@ -620,15 +622,6 @@ elif section == "Analysis":
 
 
 elif section == "Air Quality Predictor":
-    import streamlit as st
-    import pandas as pd
-    import numpy as np
-    from sklearn.linear_model import LinearRegression, Ridge, Lasso
-    from sklearn.ensemble import RandomForestRegressor
-    import matplotlib.pyplot as plt
-    import os
-    import pathlib
-
     @st.cache_resource
     def train_model(df_train, feature_col, target_col, model_name_to_train, country_dummy_cols):
         models = {

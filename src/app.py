@@ -118,7 +118,7 @@ if section == "Dashboard":
             st.session_state["section"] = "Air Quality Predictor"
             st.rerun()
     with col6:
-        if st.button("🔥 Custom Regression Builder"):
+        if st.button("💻 Custom Regression Builder"):
             play_sound()
             st.session_state["section"] = "Custom Regression Builder"
             st.rerun()
@@ -131,7 +131,6 @@ if section == "Dashboard":
     st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWplZjlvYzUzNG5vNmsxcnQwb3AzNW5ycm44dTl5NzRpdjUxcGZ2aiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/AoHEeIi9AzzwLlEmfb/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_container_width =True)
 
 
-# Conditional logic for other sections
 elif section == "Introduction":
     st.title("Electric Vehicles and Air Quality Analysis 🚗🌍")
     
@@ -274,7 +273,6 @@ elif section == "Introduction":
             play_sound()
             st.session_state["section"] = "EDA"
             st.rerun()
-
 
 
 elif section == "EDA":
@@ -863,6 +861,10 @@ elif section == "Air Quality Predictor":
 
 elif section == "Custom Regression Builder":
     st.title("🔬 Custom Regression Builder")
+    st.markdown(
+        "This regression includes **country fixed effects** (dummy variables for each country, with Austria (AT) as the baseline). "
+        "This approach helps control for unobserved country-level differences and improves the reliability of OLS, Ridge, and Lasso models."
+    )
 
     import pathlib
     import pandas as pd
@@ -883,23 +885,22 @@ elif section == "Custom Regression Builder":
 
     # Find all AnnualAvg_ columns available for this pollutant
     annualavg_cols = [col for col in data.columns if col.startswith("AnnualAvg_")]
-    # Optionally, let user pick which annual average column to use (default: first)
     default_col = annualavg_cols[0] if annualavg_cols else None
     y_col = st.selectbox("Select annual average column", annualavg_cols, index=annualavg_cols.index(default_col) if default_col else 0)
 
     # Filter data for selected pollutant
     df = data[data['Pollutant'] == pollutant].copy()
 
-    # X variable selection (exclude non-numeric/object columns)
+    # Country filter
+    countries = sorted(df['Country'].unique())
+    selected_countries = st.multiselect("Select countries", countries, default=countries)
+
+    # X variable selection (exclude non-numeric/object columns and country dummies)
     x_vars = st.multiselect(
         "Select independent variables (X)",
         [col for col in df.columns if col not in ["Country", "Year", "Pollutant", y_col] and df[col].dtype != "object"],
         default=["AF_fleet"]
     )
-
-    # Country filter
-    countries = sorted(df['Country'].unique())
-    selected_countries = st.multiselect("Select countries", countries, default=countries)
 
     # Model selection
     model_type = st.selectbox("Select model type", ["Linear Regression", "Ridge", "Lasso", "Random Forest"])
@@ -911,10 +912,25 @@ elif section == "Custom Regression Builder":
         n_estimators = st.slider("Number of trees", 10, 200, 100, step=10)
 
     # Filter data
-    df = df[df['Country'].isin(selected_countries)].dropna(subset=[y_col] + x_vars)
-    if len(df) > 5 and x_vars:
+    df = df[df['Country'].isin(selected_countries)].dropna(subset=[y_col] + x_vars + ["Country"])
+
+    # Add country fixed effects (AT as baseline)
+    if "AT" in df['Country'].unique():
+        df = pd.get_dummies(df, columns=['Country'], drop_first=True)
+        country_dummies = [col for col in df.columns if col.startswith("Country_")]
+    else:
+        # If AT not present, use first country alphabetically as baseline
+        df = pd.get_dummies(df, columns=['Country'], drop_first=True)
+        country_dummies = [col for col in df.columns if col.startswith("Country_")]
+
+    # Only add country dummies for OLS, Ridge, Lasso
+    if model_type in ["Linear Regression", "Ridge", "Lasso"]:
+        X = df[x_vars + country_dummies]
+    else:
         X = df[x_vars]
-        y = df[y_col]
+    y = df[y_col]
+
+    if len(df) > 5 and x_vars:
         # Model fitting
         if model_type == "Linear Regression":
             model = LinearRegression()
@@ -929,7 +945,9 @@ elif section == "Custom Regression Builder":
         r2 = model.score(X, y)
         st.write(f"**R²:** {r2:.3f}")
         if hasattr(model, "coef_"):
-            st.write("**Coefficients:**", dict(zip(x_vars, model.coef_)))
+            st.write("**Coefficients:**")
+            coef_dict = dict(zip(X.columns, model.coef_))
+            st.json(coef_dict)
         if hasattr(model, "intercept_"):
             st.write("**Intercept:**", model.intercept_)
         # Plot actual vs predicted
@@ -982,22 +1000,6 @@ elif section == "Discussion":
 
     st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXQxbTBmMTRsOGtxM2ZxbGFoc2dkanY5aWM4YnFrMXNzdGM2djRuMiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/282FVV3gOTojMwgcDm/giphy.gif", caption="Mining for EV batteries: A hidden environmental cost?", use_container_width =True)
 
-    st.write("""
-    Future analyses could incorporate lifecycle assessments (LCAs) to provide a more holistic view of the environmental impacts of both vehicle types. LCAs would help quantify the trade-offs between tailpipe emissions and upstream emissions.
-    """)
-
-    st.subheader("Future Research Directions")
-    st.write("""
-    From a machine learning and data science perspective, there are several exciting opportunities for future research:
-    - **Causal Inference Models**: Leveraging advanced techniques like causal forests or Bayesian networks to disentangle the effects of EV adoption from other factors influencing air quality.
-    - **Spatial-Temporal Analysis**: Using geospatial data and time-series models to study localized impacts of EV adoption on air quality metrics.
-    - **Integrated Energy Models**: Combining EV adoption data with energy grid models to assess the impact of renewable energy integration on lifecycle emissions.
-    - **Policy Simulations**: Developing machine learning models to simulate the impact of different policy scenarios, such as subsidies for EVs or stricter emissions standards for ICE vehicles.
-    """)
-
-    st.write("""
-    These approaches could provide deeper insights into the complex interplay between EV adoption, energy systems, and environmental outcomes.
-    """)
 
     st.subheader("What We Didn't Measure")
     st.write("""
@@ -1030,6 +1032,7 @@ elif section == "Discussion":
             play_sound()
             st.session_state["section"] = "Conclusions"
             st.rerun()
+
 
 elif section == "Conclusions":
     st.title("Conclusions: The Road Ahead 🚗🌍")

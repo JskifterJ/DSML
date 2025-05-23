@@ -89,44 +89,43 @@ if section == "Dashboard":
     st.title("Welcome to the EV Impact Dashboard 🚗🌍")
     st.write("Navigate to different sections using the buttons below:")
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
+    col = st.columns(1)[0]
+    with col:
         if st.button("📘 Introduction"):
             play_sound()
             st.session_state["section"] = "Introduction"
             st.rerun()
-    with col2:
         if st.button("📊 EDA"):
             play_sound()
             st.session_state["section"] = "EDA"
             st.rerun()
-    with col3:
         if st.button("📈 Analysis"):
             play_sound()
             st.session_state["section"] = "Analysis"
             st.rerun()
-
-    col4, col5, col6, col7 = st.columns(4)
-    with col4:
-        if st.button("📚 Literature Review"):
-            play_sound()
-            st.session_state["section"] = "Literature Review"
-            st.rerun()
-    with col5:
         if st.button("🧪 Air Quality Predictor"):
             play_sound()
             st.session_state["section"] = "Air Quality Predictor"
             st.rerun()
-    with col6:
         if st.button("💻 Custom Regression Builder"):
             play_sound()
             st.session_state["section"] = "Custom Regression Builder"
             st.rerun()
-    with col7:
+        if st.button("📚 Literature Review"):
+            play_sound()
+            st.session_state["section"] = "Literature Review"
+            st.rerun()
+        if st.button("🗣️ Discussion"):
+            play_sound()
+            st.session_state["section"] = "Discussion"
+            st.rerun()
         if st.button("🔚 Conclusions"):
             play_sound()
             st.session_state["section"] = "Conclusions"
             st.rerun()
+
+    # add a small text asking whether the user is ready!
+    st.write("Are you ready to explore the impact of electric vehicles on air quality? 🚀")
 
     st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWplZjlvYzUzNG5vNmsxcnQwb3AzNW5ycm44dTl5NzRpdjUxcGZ2aiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/AoHEeIi9AzzwLlEmfb/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_container_width =True)
 
@@ -223,9 +222,9 @@ elif section == "Introduction":
 
     We focused on six European countries that offer this balance:
 
-    - 🇳🇴 *Norway, 🇸🇪 **Sweden, and 🇩🇰 **Denmark* are EV front-runners with supportive policies and relatively *isolated air basins*, reducing cross-border pollution noise.
-    - 🇨🇭 *Switzerland* and 🇦🇹 *Austria* share *mountainous topographies* where smog and air stagnation amplify pollution patterns.
-    - 🇳🇱 *The Netherlands* adds contrast with its *urban density*, flat terrain, and advanced EV infrastructure.
+    - *Norway* (🇳🇴), *Sweden* (🇸🇪), and *Denmark* (🇩🇰) are EV front-runners with supportive policies and relatively *isolated air basins*, reducing cross-border pollution noise.
+    - *Switzerland* (🇨🇭) and *Austria* (🇦🇹) share *mountainous topographies* where smog and air stagnation amplify pollution patterns.
+    - *The Netherlands* (🇳🇱) adds contrast with its *urban density*, flat terrain, and advanced EV infrastructure.
 
     All six countries are part of the *EU or EEA*, aligning on environmental regulation and data availability—while exhibiting distinct adoption rates and geography-driven pollution behaviors.
 
@@ -281,6 +280,7 @@ elif section == "EDA":
 
     with st.expander("ℹ️ What do the AnnualAvg_ columns mean?"):
         st.markdown("""
+        To help us discover patterns according to time of day and week, we created several new columns in the dataset. These columns represent annual average pollutant levels during different time periods.
         **AnnualAvg_ Column Descriptions:**
         - **AnnualAvg_fullweek_Daytime**: Average pollutant value during daytime hours (9:00–18:00), all days of the week.
         - **AnnualAvg_fullweek_RushHour**: Average pollutant value during rush hours (8:00–10:00 & 15:00–18:00), all days of the week.
@@ -327,6 +327,7 @@ elif section == "EDA":
         - **EV Factor**: Heavier vehicles (like BEVs) tend to increase PM10 from tire-road interactions.  
         - **Confounders**: Also influenced by construction, agriculture, and weather (wind re-suspension).
 
+        
         ---
         **Note**: Non-tailpipe (non-exhaust) emissions like tire and brake wear are increasingly relevant with the rise of EVs. These sources do not benefit from the "zero emissions" of EV drivetrains and may even increase in some cases.
 
@@ -538,10 +539,6 @@ elif section == "Analysis":
     for pollutant in best_results['Pollutant'].value_counts().index[:3]:
         st.write(f"  - {pollutant}")
 
-    # Show top 3 graphs
-    st.subheader("📈 Top 3 Model Fits: See the Magic!")
-    import os
-    import matplotlib.pyplot as plt
 
     # --- Section: Model Results per Pollutant ---
     st.subheader("📊 Model Results per Pollutant")
@@ -560,6 +557,7 @@ elif section == "Analysis":
         st.markdown("\n".join([f"- {pt}" for pt in bullet_points]))
 
 
+    st.subheader("CO2")
     # --- 🟢 CO2 ---
     show_model_analysis("CO2", [
         "The Netherlands and Sweden show a high model fit across all methods, suggesting strong internal consistency in how fleet composition aligns with CO₂ levels.",
@@ -567,6 +565,7 @@ elif section == "Analysis":
         "Random Forest performs best overall, capturing more of the nonlinear variance, especially in countries like Austria (R² = 0.71)."
     ])
 
+    st.subheader("NO")
     # ---🟠 NO2 ---
     show_model_analysis("NO2", [
         "Model fits are consistently strong in Austria, Switzerland, and the Netherlands, suggesting stable relationships in NO₂ emissions and fleet data.",
@@ -574,6 +573,7 @@ elif section == "Analysis":
         "DK again appears as a difficult case for modeling, though NO₂ performs better than other pollutants."
     ])
 
+    st.subheader("NOX as NO2")
     # ---🟣 NOX as NO2 ---
     show_model_analysis("NOX as NO2", [
         "The Netherlands is again a standout, with high test R² across all models.",
@@ -581,12 +581,14 @@ elif section == "Analysis":
         "For Sweden, even non-linear models struggle to predict NOx levels, which could point to external factors beyond EV share."
     ])
 
+    st.subheader("PM10")
     # ---⚪ PM10 ---
     show_model_analysis("PM10", [
         "Strongest fits appear in the Netherlands and Switzerland, suggesting a clear structural link between alternative fuel uptake and PM10 levels in these regions.",
         "Austria shows moderate test scores, while countries like DK and NO present greater difficulty in capturing patterns, possibly due to data variability or local factors."
     ])
 
+    st.subheader("PM2.5")
     # ---⚫ PM2.5 ---
     show_model_analysis("PM2.5", [
         "The highest test scores across pollutants are seen here, especially for Switzerland and Sweden, where Random Forest reaches near-perfect R².",
@@ -605,8 +607,6 @@ elif section == "Analysis":
     """)
     st.info("Want to explore more? Try the Air Quality Predictor tab to see how changing EV adoption could impact air quality in your country!")
 
-    st.markdown("#### 🚀 Thanks for exploring with us! The road to cleaner air is full of twists, turns, and data surprises.")
-
 
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
@@ -618,79 +618,6 @@ elif section == "Analysis":
         if st.button("Next ➡️"):
             play_sound()
             st.session_state["section"] = "Literature Review"
-            st.rerun()
-
-
-elif section == "Literature Review":
-    st.title("Literature Review")
-    st.write("""
-    This section explores existing research on the environmental impacts of electric vehicle (EV) adoption and compares their findings with our analysis.
-    """)
-
-    # Study 1
-    st.subheader("Study 1: Gómez Vilchez et al. (2019)")
-    st.write("""
-    **Goal:** Quantify key environmental impacts of electric vehicle deployment in the European Union by 2030.
-    """)
-    st.write("""
-    **Findings:**
-    - Simulated CO2 emission reductions are modest, with only two countries (Austria and Ireland) reducing CO2 emissions by more than 10%.
-    - Positive correlation between higher EV stock deployment and greater CO2 mitigation.
-    - Switzerland benefits from lower PM2.5 concentrations due to EV uptake in neighboring countries.
-    """)
-    st.write("[Read more](https://doi.org/10.1186/s12544-019-0377-1)")
-
-    # Study 2
-    st.subheader("Study 2: Weeberb J. Requia et al. (2018)")
-    st.write("""
-    **Goal:** Comprehensive review of the effects of EV adoption on air quality, greenhouse gas emissions, and human health.
-    """)
-    st.write("""
-    **Findings:**
-    - The main bottleneck is that air pollution shifts from roads to power plants.
-    - Pollution reduction benefits depend on EV lifecycle emissions and the energy mix used for electricity generation.
-    """)
-    st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2018.04.040)")
-
-
-    # Study 3
-    st.subheader("Study 3: Borge et al. (2016)")
-    st.write("""
-    **Goal:** Assess the impact of electric vehicle (EV) adoption on air pollution levels along a major highway in Madrid, Spain.
-    """)
-    st.write("""
-    **Findings:**
-    - Replacing 50% of light-duty vehicles with EVs could reduce nitrogen dioxide (NO₂) and nitrogen oxides (NOₓ) concentrations by approximately 5.5% in areas adjacent to the highway.
-    - The study emphasizes that while EVs can contribute to air quality improvements, the overall impact is modest and depends on the extent of EV adoption and other local factors.
-    - No significant CO₂ reductions are reported, as the focus is primarily on local pollutants.
-    """)
-    st.write("[Read more](https://doi.org/10.1016/j.apenergy.2016.03.027)")
-
-    # Study 4
-    st.subheader("Study 4: Requia et al. (2016)")
-    st.write("""
-    **Goal:** Evaluate the episodic impacts of plug-in electric vehicle (PEV) adoption on air quality and public health in the United States.
-    """)
-    st.write("""
-    **Findings:**
-    - PEV adoption leads to notable reductions in ozone (O₃) and fine particulate matter (PM₂.₅) during high pollution episodes, especially in urban areas.
-    - Air quality improvements are region-specific, with the largest benefits in densely populated, high-emission zones.
-    - Public health gains include reduced respiratory and cardiovascular issues, with potential decreases in mortality rates.
-    - The effectiveness of EVs in improving air quality depends heavily on the electricity generation mix—regions with cleaner grids show the strongest benefits.
-    """)
-    st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2016.07.005)")
-
-
-    col1, col2, col3 = st.columns([1, 5, 1])
-    with col1:
-        if st.button("⬅️ Previous"):
-            play_sound()
-            st.session_state["section"] = "Analysis"
-            st.rerun()
-    with col3:
-        if st.button("Next ➡️"):
-            play_sound()
-            st.session_state["section"] = "Air Quality Predictor"
             st.rerun()
 
 
@@ -972,6 +899,79 @@ elif section == "Custom Regression Builder":
             play_sound()
             st.session_state["section"] = "Discussion"
             st.rerun()
+
+elif section == "Literature Review":
+    st.title("Literature Review")
+    st.write("""
+    This section explores existing research on the environmental impacts of electric vehicle (EV) adoption and compares their findings with our analysis.
+    """)
+
+    # Study 1
+    st.subheader("Study 1: Gómez Vilchez et al. (2019)")
+    st.write("""
+    **Goal:** Quantify key environmental impacts of electric vehicle deployment in the European Union by 2030.
+    """)
+    st.write("""
+    **Findings:**
+    - Simulated CO2 emission reductions are modest, with only two countries (Austria and Ireland) reducing CO2 emissions by more than 10%.
+    - Positive correlation between higher EV stock deployment and greater CO2 mitigation.
+    - Switzerland benefits from lower PM2.5 concentrations due to EV uptake in neighboring countries.
+    """)
+    st.write("[Read more](https://doi.org/10.1186/s12544-019-0377-1)")
+
+    # Study 2
+    st.subheader("Study 2: Weeberb J. Requia et al. (2018)")
+    st.write("""
+    **Goal:** Comprehensive review of the effects of EV adoption on air quality, greenhouse gas emissions, and human health.
+    """)
+    st.write("""
+    **Findings:**
+    - The main bottleneck is that air pollution shifts from roads to power plants.
+    - Pollution reduction benefits depend on EV lifecycle emissions and the energy mix used for electricity generation.
+    """)
+    st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2018.04.040)")
+
+
+    # Study 3
+    st.subheader("Study 3: Borge et al. (2016)")
+    st.write("""
+    **Goal:** Assess the impact of electric vehicle (EV) adoption on air pollution levels along a major highway in Madrid, Spain.
+    """)
+    st.write("""
+    **Findings:**
+    - Replacing 50% of light-duty vehicles with EVs could reduce nitrogen dioxide (NO₂) and nitrogen oxides (NOₓ) concentrations by approximately 5.5% in areas adjacent to the highway.
+    - The study emphasizes that while EVs can contribute to air quality improvements, the overall impact is modest and depends on the extent of EV adoption and other local factors.
+    - No significant CO₂ reductions are reported, as the focus is primarily on local pollutants.
+    """)
+    st.write("[Read more](https://doi.org/10.1016/j.apenergy.2016.03.027)")
+
+    # Study 4
+    st.subheader("Study 4: Requia et al. (2016)")
+    st.write("""
+    **Goal:** Evaluate the episodic impacts of plug-in electric vehicle (PEV) adoption on air quality and public health in the United States.
+    """)
+    st.write("""
+    **Findings:**
+    - PEV adoption leads to notable reductions in ozone (O₃) and fine particulate matter (PM₂.₅) during high pollution episodes, especially in urban areas.
+    - Air quality improvements are region-specific, with the largest benefits in densely populated, high-emission zones.
+    - Public health gains include reduced respiratory and cardiovascular issues, with potential decreases in mortality rates.
+    - The effectiveness of EVs in improving air quality depends heavily on the electricity generation mix—regions with cleaner grids show the strongest benefits.
+    """)
+    st.write("[Read more](https://doi.org/10.1016/j.atmosenv.2016.07.005)")
+
+
+    col1, col2, col3 = st.columns([1, 5, 1])
+    with col1:
+        if st.button("⬅️ Previous"):
+            play_sound()
+            st.session_state["section"] = "Analysis"
+            st.rerun()
+    with col3:
+        if st.button("Next ➡️"):
+            play_sound()
+            st.session_state["section"] = "Air Quality Predictor"
+            st.rerun()
+
 
 elif section == "Discussion":
     st.title("Discussion: Beyond the Dashboard 🚗📊")

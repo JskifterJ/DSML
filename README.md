@@ -206,14 +206,12 @@ It is important to note that the project examines only **local air quality** and
 
 ### 🔁 Regional Impact (Urban Air Quality)
 
-\[
-\text{Regional Impact} =
-E^{\text{ICE}}_{\text{tailpipe}} +
-E^{\text{non-exhaust}}_{\text{ICE}} -
-\Delta E^{\text{EV}}_{\text{tailpipe}} -
-\Delta E^{\text{EV}}_{\text{brake}} +
-\Delta E^{\text{EV}}_{\text{tire}}
-\]
+**Regional Impact** =  
+_E<sub>tailpipe</sub><sup>ICE</sup>_ +  
+_E<sub>non-exhaust</sub><sup>ICE</sup>_ −  
+Δ_E<sub>tailpipe</sub><sup>EV</sup>_ −  
+Δ_E<sub>brake</sub><sup>EV</sup>_ +  
+Δ_E<sub>tire</sub><sup>EV</sup>_
 
 - Tailpipe pollutants (CO₂, NO₂, PM) are eliminated by EVs.
 - Regenerative braking reduces brake dust, a major PM source.
@@ -223,13 +221,11 @@ E^{\text{non-exhaust}}_{\text{ICE}} -
 
 ### 🌍 Global Impact (Lifecycle Emissions)
 
-\[
-\text{Global Impact} =
-E^{\text{fossil}}_{\text{extraction}} +
-E^{\text{EV}}_{\text{battery}} +
-E^{\text{grid}}_{\text{operation}} -
-\Delta E^{\text{ICE}}_{\text{tailpipe, lifetime}}
-\]
+**Global Impact** =  
+_E<sub>extraction</sub><sup>fossil</sup>_ +  
+_E<sub>battery</sub><sup>EV</sup>_ +  
+_E<sub>operation</sub><sup>grid</sup>_ −  
+Δ_E<sub>tailpipe, lifetime</sub><sup>ICE</sup>_
 
 - Includes emissions from fossil fuel production and battery manufacturing.
 - Depends heavily on the national electricity mix used for charging.
@@ -378,3 +374,35 @@ While not causal, the findings offer promising evidence that electrifying vehicl
 - Spatially granular modeling
 
 Our interactive dashboard and reproducible codebase aim to help researchers, policymakers, and citizens better understand the multi-faceted dynamics of cleaner transportation.
+
+
+## 📚 Sources
+#### 🔌 Electric Vehicle (EV) Data
+
+[EAFO – European Alternative Fuels Observatory](https://alternative-fuels-observatory.ec.europa.eu/)  
+
+#### 🌫 Air Quality Data
+
+[European Environment Agency (EEA)](https://www.eea.europa.eu/themes/air/air-quality-index)  
+
+### 📄 Literature and Scientific References
+
+- Gómez Vilchez et al. (2019)  
+  Quantifying environmental impacts of EV deployment in the EU  
+  [Link to study](https://doi.org/10.1186/s12544-019-0377-1)
+
+- Requia et al. (2018)  
+  Effects of EV adoption on air quality and public health  
+  [Link to study](https://doi.org/10.1016/j.atmosenv.2018.04.040)
+
+- Borge et al. (2016)  
+  Impact of EVs on air pollution along a Madrid highway  
+  [Link to study](https://doi.org/10.1016/j.apenergy.2016.02.073)
+
+- Timmers & Achten (2016)  
+  Non-exhaust PM emissions from EVs vs. ICE vehicles  
+  [Link to study](https://doi.org/10.1016/j.atmosenv.2016.03.017)
+
+- Websites of the countries-under-observation's transport authorities 
+
+- European Transport Statistics Report, 2020

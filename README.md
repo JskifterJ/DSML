@@ -6,7 +6,7 @@ Lesgooo 🔥🚀🚀
 ![DataDrillers uncover the hidden patterns in BEV/alternative fuel passenger vehicles and regional air quality! Come aboard!](figures/YouTube_thumbnail.jpg)
 
 # Electric Vehicles and Air Quality Analysis
-**IMPORTANT**: The raw data files were too large (15GB) to upload to Moodle which has a limit of 50MB. We therefore had to delete all the raw AQ data, reducing reproducibility. All src/notebook files *should* however run.
+**IMPORTANT**: The raw data files were too large (15GB) to upload to Moodle which has a limit of 50MB. We therefore had to delete all the raw AQ data, reducing reproducibility. All src/notebook files *should* however run. Data pre-processing for Air Quality (AQ) data was thus performed locally to export AQ_merged_data_export_v2.csv in data/processed. All other .ipynb and .py should thus run regardless. 
 
 ## 🧭 Table of Contents
 

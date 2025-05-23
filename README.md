@@ -63,9 +63,7 @@ cd DSML
 conda env create -f environment.yml # Alternatively, install requirements.txt
 conda activate dsml_EV_project
 > 🏁 Run the app using:
-```bash
-streamlit run src/app.py
-```> Make sure to launch it from the project **root directory** to avoid file path issues.
+streamlit run src/app.py in terminal # Make sure to launch it from the project **root directory** to avoid file path issues.
 
 ### 🖥️ Streamlit Dashboard Overview
 

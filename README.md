@@ -1,7 +1,7 @@
 # DSML
 Lesgooo 🔥🚀🚀
 
-[# Link to YouTube video! 📽 (handle with care <3)](https://youtu.be/NdGiVm-JP9c)
+# [Link to YouTube video! 📽 (handle with care <3)](https://youtu.be/NdGiVm-JP9c)
 
 ![DataDrillers uncover the hidden patterns in BEV/alternative fuel passenger vehicles and regional air quality! Come aboard!](figures/YouTube_thumbnail.jpg)
 

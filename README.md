@@ -62,6 +62,10 @@ git clone https://github.com/JskifterJ/DSML.git
 cd DSML
 conda env create -f environment.yml # Alternatively, install requirements.txt
 conda activate dsml_EV_project
+> 🏁 Run the app using:
+```bash
+streamlit run src/app.py
+```> Make sure to launch it from the project **root directory** to avoid file path issues.
 
 ### 🖥️ Streamlit Dashboard Overview
 
@@ -85,13 +89,6 @@ The project includes an interactive web-based **Streamlit dashboard**, allowing 
 #### 📚 Literature & Discussion
 - Summarized review of academic findings and policy context
 - Recap of limitations, data quality, and potential future work
-
-> 🏁 Run the app using:
-```bash
-streamlit run src/app.py
-```
-
-> Make sure to launch it from the project **root directory** to avoid file path issues.
 
 
 ## 🔍 Project Flow

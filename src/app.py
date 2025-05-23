@@ -1128,6 +1128,8 @@ elif section == "Conclusions":
     These lessons will serve us well in future data science projects, both academic and professional!    
     """)
 
+    st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmgwa3RmcDgzbXQ3MTMwNmxxNTF6Z2I0NmZrbzhmMDEya3d4cHp4MCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/5C472t1RGNuq4/giphy.gif", caption="Alas, we move forward!", use_container_width=True)
+
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("⬅️ Previous"):

@@ -40,16 +40,27 @@ import pathlib
 def load_data():
     # Use pathlib to construct the file path
     data_dir = pathlib.Path(__file__).parent.parent / "data" / "processed"
-    fleet_data_path = data_dir / "combined_fleet_data.csv"
+    aq_data_path = data_dir / "AQ_annual_averages.csv"
+    vehicle_data_path = data_dir / "combined_vehicle_data.csv" # Using the same vehicle data as Custom Regression Builder
 
-    # Check if the file exists
-    if not fleet_data_path.exists():
-        st.error(f"File not found: {fleet_data_path}")
-        st.stop()
+    # Check if the files exist
+    if not aq_data_path.exists():
+        st.error(f"Air quality data file not found: {aq_data_path}")
+        # st.stop() # Consider returning an empty DataFrame or None for more graceful handling if needed elsewhere
+        return pd.DataFrame() 
+    if not vehicle_data_path.exists():
+        st.error(f"Vehicle data file not found: {vehicle_data_path}")
+        # st.stop()
+        return pd.DataFrame()
 
-    # Load the CSV file
-    fleet_data = pd.read_csv(fleet_data_path)
-    return fleet_data
+    # Load the CSV files
+    aq_df = pd.read_csv(aq_data_path)
+    vehicle_df = pd.read_csv(vehicle_data_path)
+
+    # Perform the merge on 'Country' and 'Year'
+    # This ensures 'Pollutant' from aq_df and fleet data from vehicle_df are combined
+    merged_data = pd.merge(aq_df, vehicle_df, on=['Country', 'Year'], how='left')
+    return merged_data
 
 data = load_data()
 
@@ -525,24 +536,11 @@ elif section == "Analysis":
     """)
 
     st.markdown("---")
-    st.subheader("🔍 What Did We Find?")
-    # Highlight some interesting findings
-    st.markdown("### 🌟 Notable Patterns")
-    best = best_results.iloc[0]
-    st.write(f"- **Best overall:** {best['Model']} for {best['Pollutant']} ({best['Target']}) with R² = {best['R2_train']:.2f}")
-    st.write("- **Countries with consistently high model performance:**")
-    for country in ["NO", "CH", "AT", "NL", "DK"]:
-        n = best_results[best_results['Target'].str.contains(country, na=False)].shape[0]
-        if n > 0:
-            st.write(f"  - {country}: {n} top-10 appearances")
-    st.write("- **Pollutants best explained by EV adoption:**")
-    for pollutant in best_results['Pollutant'].value_counts().index[:3]:
-        st.write(f"  - {pollutant}")
-
 
     # --- Section: Model Results per Pollutant ---
     st.subheader("📊 Model Results per Pollutant")
     st.markdown("To interpret model performance across pollutants and countries, we focus on the *full week rush-hour* timescale. This view maximizes clarity, captures consistent time windows most impacted by traffic, and highlights inter-country variation in model fit.")
+    st.markdown("*Note*: Country fixed effects applied to OLS, Ridge, and Lasso models to account for country-specific factors. Austria (AT) is used as the reference country hence it doesn't show in the plots.")
 
     # Helper function to display image and bullet points
     def show_model_analysis(pollutant_name, bullet_points):
@@ -622,9 +620,6 @@ elif section == "Analysis":
 
 
 elif section == "Air Quality Predictor":
-    st.title("Air Quality Predictor 🚗🌍")
-    st.write("Predict air quality metrics based on EV adoption levels.")
-
     import streamlit as st
     import pandas as pd
     import numpy as np
@@ -632,147 +627,217 @@ elif section == "Air Quality Predictor":
     from sklearn.ensemble import RandomForestRegressor
     import matplotlib.pyplot as plt
     import os
-
     import pathlib
 
-    @st.cache_data
-    def load_data():
-        DATA_DIR = pathlib.Path(__file__).parent.parent / "data" / "processed"
-        aq = pd.read_csv(DATA_DIR / "AQ_annual_averages.csv")
-        vehicle = pd.read_csv(DATA_DIR / "combined_vehicle_data.csv")        
-        data = aq.merge(vehicle, on=['Country', 'Year'], how='left')
-        return data
-
-    @st.cache_data
-    def load_best_results():
-        results_dir = pathlib.Path(__file__).parent.parent / "results"
-        csv_path = results_dir / "best_model_per_pollutant_target.csv"
-        if not csv_path.exists():
-            st.error(f"File not found: {csv_path}")
-            return None
-        return pd.read_csv(csv_path)
-
-    best_results = load_best_results()
-    if best_results is None:
-        st.stop()
-
-
     @st.cache_resource
-    def train_model(df, feature, target, model_name, country_cols):
+    def train_model(df_train, feature_col, target_col, model_name_to_train, country_dummy_cols):
         models = {
-            "LinearRegression": LinearRegression(),
+            "LinearRegression": LinearRegression(), # OLS
             "Ridge": Ridge(alpha=1.0),
             "Lasso": Lasso(alpha=0.1),
             "RandomForest": RandomForestRegressor(n_estimators=100, random_state=42)
         }
-        X_df = df[[feature] + country_cols]
-        y = df[target]
-        mask = (~X_df.isnull().any(axis=1)) & (~y.isnull())
-        X = X_df[mask].values
-        y = y[mask].values
-        model = models[model_name]
-        model.fit(X, y)
-        return model, X, y, mask
+        
+        # Ensure feature_col is a list, even if it's a single feature
+        if isinstance(feature_col, str):
+            feature_col = [feature_col]
+            
+        X_df = df_train[feature_col + country_dummy_cols]
+        y_series = df_train[target_col]
+        
+        # Create mask for valid data
+        mask_train = (~X_df.isnull().any(axis=1)) & (~y_series.isnull())
+        
+        X_train_np = X_df[mask_train].values
+        y_train_np = y_series[mask_train].values
+        
+        if X_train_np.shape[0] == 0: # No data to train on
+            st.warning("No valid data available for training with the current selections.")
+            # Return a dummy model or handle appropriately
+            return models[model_name_to_train], X_train_np, y_train_np, mask_train 
 
-    st.title("Pollutant Prediction App")
+        model_instance = models[model_name_to_train]
+        model_instance.fit(X_train_np, y_train_np)
+        return model_instance, X_train_np, y_train_np, mask_train
 
-    data = load_data()
-    best_results = load_best_results()
+    st.title("🔬 Air Quality Predictor")
+    st.markdown("""
+    Experiment with different models to predict pollutant levels based on Alternative Fuel (AF) vehicle fleet percentage. 
+    You can view predictions for individual countries or use a model trained on all countries with fixed effects (Austria as baseline).
+    """)
 
-    # User selects pollutant and AnnualAvg_ column
-    pollutants = best_results['Pollutant'].unique()
-    pollutant = st.selectbox("Select pollutant", pollutants)
+    data = load_data() # Assuming this loads your base dataset
+    # Assuming best_results is loaded globally or passed appropriately
+    # For this example, let's ensure it's available. If it's loaded in main(), pass it or load here.
+    # if 'best_results' not in globals(): # Simplified check
+    results_path = pathlib.Path(__file__).parent.parent / "results"
+    best_results = pd.read_csv(results_path / "best_model_per_pollutant_target.csv")
 
-    targets = best_results[best_results['Pollutant'] == pollutant]['Target'].unique()
-    target = st.selectbox("Select AnnualAvg_ column", targets)
+    # --- User Selections ---
+    pollutants_available = sorted(best_results['Pollutant'].unique())
+    pollutant = st.selectbox("1. Select Pollutant", pollutants_available, key="predictor_pollutant")
 
-    # Get best model for this combination
-    row = best_results[(best_results['Pollutant'] == pollutant) & (best_results['Target'] == target)].iloc[0]
-    model_name = row['Model']
-    r2 = row['R2_train']
+    targets_available = sorted(best_results[best_results['Pollutant'] == pollutant]['Target'].unique())
+    if not targets_available: # Fallback if no targets for pollutant
+        st.warning(f"No target variables found for pollutant {pollutant} in best_results.csv. Please check data.")
+        st.stop()
+    target = st.selectbox("2. Select Target Variable (e.g., Annual Average)", targets_available, key="predictor_target")
 
-    st.write(f"Best model: **{model_name}** (R² = {r2:.2f})")
+    use_all_countries = st.checkbox("🌍 Use model trained on all countries' data (with fixed effects, AT as baseline)", key="predictor_use_all")
 
-    # Filter data for pollutant and available countries
-    df = data[data['Pollutant'] == pollutant].copy()
-    countries = sorted(df['Country'].unique())
-    country = st.selectbox("Select country", countries)
+    model_options = ["LinearRegression", "Ridge", "Lasso", "RandomForest"]
+    default_model_idx = model_options.index("LinearRegression") # Default to OLS
+    
+    selected_model_by_user = st.selectbox("3. Select Model Type", model_options, index=default_model_idx, key="predictor_model_select")
 
-    # Prepare data for model
-    df['_CountryOrig'] = df['Country']
-    df = pd.get_dummies(df, columns=['Country'], drop_first=True)
-    country_cols = [col for col in df.columns if col.startswith('Country_')]
+    actual_model_to_run = ""
+    
+    if use_all_countries:
+        st.info("ℹ️ Model trained on all countries. 'LinearRegression' (OLS with fixed effects) will be used. Individual country selection below is for plotting context only.")
+        actual_model_to_run = "LinearRegression"
+    else:
+        actual_model_to_run = selected_model_by_user
+        try:
+            # Display info about the pre-calculated best model for context
+            best_row = best_results[
+                (best_results['Pollutant'] == pollutant) &
+                (best_results['Target'] == target)
+            ].iloc[0]
+            st.info(f"ℹ️ For {pollutant} ({target.split('_')[-1]}), the pre-calculated best model in analyses was **{best_row['Model']}** (Training R² = {best_row['R2_train']:.2f}). You are currently experimenting with **{actual_model_to_run}**.")
+        except IndexError:
+            st.info(f"ℹ️ No pre-calculated 'best model' info for {pollutant} ({target.split('_')[-1]}). You are experimenting with **{actual_model_to_run}**.")
 
+    # --- Data Preparation ---
+    df_filtered_pollutant = data[data['Pollutant'] == pollutant].copy()
+    df_filtered_pollutant['_CountryOrig'] = df_filtered_pollutant['Country']
+    
+    # Create country dummies, using Austria (AT) as baseline if present
+    # Ensure 'AT' is treated as baseline by not creating a dummy for it if drop_first is smart
+    # Or explicitly handle AT if it's not automatically the baseline from get_dummies
+    if 'AT' in df_filtered_pollutant['Country'].unique():
+        df_prepared = pd.get_dummies(df_filtered_pollutant, columns=['Country'], prefix='Country', prefix_sep='_', drop_first=True)
+    else: # If AT is not in data for this pollutant, drop the first alphabetically
+        df_prepared = pd.get_dummies(df_filtered_pollutant, columns=['Country'], prefix='Country', prefix_sep='_', drop_first=True)
+        st.warning("Austria (AT) not found in the data for the selected pollutant; another country was used as baseline for dummies.")
 
-    # Find the correct dummy column for the selected country
-    country_dummy_map = {col.replace('Country_', ''): col for col in country_cols}
-    selected_country_dummy = country_dummy_map.get(country, None)
+    country_cols = [col for col in df_prepared.columns if col.startswith('Country_')]
 
-    # User selects AF_fleet percentage
+    # --- Country selection for individual view (if not use_all_countries) or plot context ---
+    selected_country_for_view = None
+    selected_country_dummy_for_input = None # For constructing prediction input vector
+
+    # Always show country dropdown for plot context, but its role in model input changes
+    available_countries_for_pollutant = sorted(df_filtered_pollutant['_CountryOrig'].unique())
+    if available_countries_for_pollutant:
+        country_for_plot_context = st.selectbox("4. Select Country for Plot Context / Individual Prediction", available_countries_for_pollutant, key="predictor_country_select")
+        selected_country_for_view = country_for_plot_context
+        if f"Country_{country_for_plot_context}" in country_cols:
+             selected_country_dummy_for_input = f"Country_{country_for_plot_context}"
+        # If country_for_plot_context is the baseline (e.g., AT), selected_country_dummy_for_input will be None
+    else:
+        st.warning("No countries available for the selected pollutant.")
+        st.stop()
+
+    # --- AF Fleet Slider ---
     af_fleet_min = 0.0
     af_fleet_max = 100.0
-    af_fleet_default = float(df['AF_fleet'].mean())
-    af_fleet = st.slider("Select AF_fleet (%)", af_fleet_min, af_fleet_max, af_fleet_default)
+    # Use mean of the specific pollutant's data if available, else a general default
+    default_af_fleet = df_prepared['AF_fleet'].mean() if not df_prepared['AF_fleet'].empty else 20.0
+    af_fleet_percentage = st.slider("5. Select Alternative Fuel (AF) Fleet Percentage (%) for Prediction", af_fleet_min, af_fleet_max, default_af_fleet, key="predictor_af_slider")
 
-    # Train model (cached)
-    model, X, y, mask = train_model(df, "AF_fleet", target, model_name, country_cols)
+    # --- Model Training & Evaluation ---
+    trained_model, X_trained_np, y_trained_np, training_mask = train_model(df_prepared, "AF_fleet", target, actual_model_to_run, country_cols)
 
-    # Prepare input for prediction
-    input_vec = np.zeros((1, X.shape[1]))
-    input_vec[0, 0] = af_fleet
-    if selected_country_dummy:
-        idx = country_cols.index(selected_country_dummy)
-        input_vec[0, 1:] = 0
-        input_vec[0, idx+1] = 1  # +1 because first column is AF_fleet
+    if X_trained_np.shape[0] > 0:
+        current_model_r2 = trained_model.score(X_trained_np, y_trained_np)
+        st.markdown(f"##### Performance of **{actual_model_to_run}** (Your Current Selection):")
+        st.metric(label="Training R² on current data subset", value=f"{current_model_r2:.3f}")
     else:
-        input_vec[0, 1:] = 0
+        st.warning("Model could not be trained due to lack of valid data for current selections.")
+        st.stop()
 
-    pred = model.predict(input_vec)[0]
-    st.success(f"Predicted {target} for {pollutant} in {country} at AF_fleet={af_fleet:.2f}: **{pred:.2f}**")
+    # --- Prediction ---
+    # X_trained_np columns: AF_fleet, then country dummies in order of country_cols
+    num_features_model_expects = 1 + len(country_cols) 
+    input_vec = np.zeros((1, num_features_model_expects))
+    input_vec[0, 0] = af_fleet_percentage  # AF_fleet is the first feature
 
-    # Plot predicted pollutant vs AF_fleet for the selected country
-    af_fleet_range = np.linspace(af_fleet_min, af_fleet_max, 100)
-    X_plot = np.zeros((100, X.shape[1]))
-    X_plot[:, 0] = af_fleet_range
-    if selected_country_dummy:
-        X_plot[:, 1:] = 0
-        X_plot[:, idx+1] = 1
-    else:
-        X_plot[:, 1:] = 0
+    if not use_all_countries: # Prediction for a specific country
+        if selected_country_dummy_for_input: # A non-baseline country is selected
+            try:
+                dummy_idx = country_cols.index(selected_country_dummy_for_input)
+                input_vec[0, 1 + dummy_idx] = 1 # +1 because AF_fleet is at index 0
+            except ValueError:
+                 st.error(f"Error: Dummy column {selected_country_dummy_for_input} not found. This should not happen.")
+        # Else (baseline country like AT is selected for view), all dummies remain 0, which is correct.
+    # Else (use_all_countries is True):
+    #   The prediction will be for the baseline country (AT) by default, as all dummies are 0.
+    #   If user selected a different country in "country_for_plot_context", we can set its dummy for the point prediction.
+    elif use_all_countries and selected_country_dummy_for_input: # if a specific country context is chosen even with all_countries model
+        try:
+            dummy_idx = country_cols.index(selected_country_dummy_for_input)
+            input_vec[0, 1 + dummy_idx] = 1
+        except ValueError:
+            pass # Keep as baseline if dummy not found
 
-    y_pred_plot = model.predict(X_plot)
+    predicted_value = trained_model.predict(input_vec)[0]
+    predicted_value = max(predicted_value, 0) # Clip at 0
 
-    # Clip predicted values to be >= 0
-    y_pred_plot = np.clip(y_pred_plot, 0, None)
-    pred = max(pred, 0)
+    st.success(f"Predicted **{target}** for **{selected_country_for_view if selected_country_for_view else 'Baseline Country (e.g. AT)'}** at {af_fleet_percentage:.1f}% AF Fleet: **{predicted_value:.2f}**")
 
-    fig, ax = plt.subplots(figsize=(7, 4))
-    ax.plot(af_fleet_range, y_pred_plot, label="Predicted")
+    # --- Plotting ---
+    fig, ax = plt.subplots(figsize=(8, 5))
+    
+    # Prediction line (trend for the selected country context)
+    af_fleet_range_plot = np.linspace(df_prepared['AF_fleet'].min(), df_prepared['AF_fleet'].max(), 100)
+    X_plot_trend = np.zeros((100, num_features_model_expects))
+    X_plot_trend[:, 0] = af_fleet_range_plot
+    
+    # Set country dummy for the trend line based on selected_country_dummy_for_input
+    # This makes the trend line specific to the country selected in "country_for_plot_context"
+    if selected_country_dummy_for_input:
+        try:
+            dummy_idx_plot = country_cols.index(selected_country_dummy_for_input)
+            X_plot_trend[:, 1 + dummy_idx_plot] = 1
+        except ValueError:
+            pass # Plot baseline trend if dummy not found
+            
+    y_pred_plot_trend = trained_model.predict(X_plot_trend)
+    y_pred_plot_trend = np.clip(y_pred_plot_trend, 0, None)
+    ax.plot(af_fleet_range_plot, y_pred_plot_trend, label=f"Predicted Trend ({selected_country_for_view if selected_country_for_view else 'Baseline'})", color='blue', linestyle='--')
 
-    # Scatter actual data for this country
-    if selected_country_dummy:
-        country_mask = df[selected_country_dummy] == 1
-    else:
-        country_mask = df[[col for col in country_cols]].sum(axis=1) == 0
-    ax.scatter(df.loc[country_mask, "AF_fleet"], df.loc[country_mask, target], color='orange', alpha=0.7, label="Actual data")
+    # Scatter actual data points
+    df_plot_actuals = df_prepared[training_mask] # Use only data points that were valid for training
 
-    # Highlight the latest actual reading
-    if "Year" in df.columns and not df.loc[country_mask].empty:
-        latest_row = df.loc[country_mask].sort_values("Year").iloc[-1]
-        ax.scatter(latest_row["AF_fleet"], latest_row[target], color='red', s=100, edgecolor='black', label="Latest actual")
-        ax.annotate(f"Latest: {latest_row[target]:.2f} ({int(latest_row['Year'])})",
-                    (latest_row["AF_fleet"], latest_row[target]),
-                    textcoords="offset points", xytext=(0,10), ha='center', color='red', fontsize=10)
+    if not use_all_countries: # Show data only for the selected country
+        if selected_country_dummy_for_input: # Non-baseline country
+            country_actual_mask = df_plot_actuals[selected_country_dummy_for_input] == 1
+        else: # Baseline country (e.g., AT)
+            country_actual_mask = df_plot_actuals[country_cols].sum(axis=1) == 0
+        ax.scatter(df_plot_actuals.loc[country_actual_mask, "AF_fleet"], df_plot_actuals.loc[country_actual_mask, target], color='orange', alpha=0.6, label=f"Actual Data ({selected_country_for_view})")
+    else: # Show all data points (from all countries included in training)
+        ax.scatter(df_plot_actuals["AF_fleet"], df_plot_actuals[target], color='gray', alpha=0.4, label="Actual Data (All Countries in Model)")
+        # Optionally, highlight data for the country selected for context
+        if selected_country_for_view:
+            if selected_country_dummy_for_input: # Non-baseline
+                 country_context_mask = df_plot_actuals[selected_country_dummy_for_input] == 1
+            else: # Baseline
+                 country_context_mask = df_plot_actuals[country_cols].sum(axis=1) == 0
+            ax.scatter(df_plot_actuals.loc[country_context_mask, "AF_fleet"], df_plot_actuals.loc[country_context_mask, target], color='red', alpha=0.7, label=f"Actual Data ({selected_country_for_view})", s=50)
 
-    # --- Highlight the selected AF_fleet predicted value ---
-    ax.scatter([af_fleet], [pred], color='blue', s=120, edgecolor='black', zorder=5, label="Selected prediction")
-    ax.annotate(f"{pred:.2f}", (af_fleet, pred), textcoords="offset points", xytext=(0,12), ha='center', color='blue', fontsize=11, fontweight='bold')
 
-    ax.set_xlabel("AF_fleet (%)")
-    ax.set_ylabel(pollutant)  # Use pollutant name for y-axis
-    ax.set_title(f"{pollutant} vs AF_fleet for {country}")
+    # Highlight the specific prediction point
+    ax.scatter([af_fleet_percentage], [predicted_value], color='red', s=100, edgecolor='black', zorder=5, label=f"Prediction for {selected_country_for_view if selected_country_for_view else 'Baseline'}")
+    ax.annotate(f"{predicted_value:.2f}", (af_fleet_percentage, predicted_value), textcoords="offset points", xytext=(0,10), ha='center', color='red', fontsize=9, fontweight='bold')
+
+    ax.set_xlabel("Alternative Fuel (AF) Fleet Percentage (%)")
+    ax.set_ylabel(f"{pollutant} - {target}")
+    ax.set_title(f"Prediction: {actual_model_to_run} Model")
     ax.legend()
+    ax.grid(True, linestyle=':', alpha=0.7)
     st.pyplot(fig)
+
+
 
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:

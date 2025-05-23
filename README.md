@@ -207,11 +207,7 @@ It is important to note that the project examines only **local air quality** and
 ### 🔁 Regional Impact (Urban Air Quality)
 
 **Regional Impact** =  
-_E<sub>tailpipe</sub><sup>ICE</sup>_ +  
-_E<sub>non-exhaust</sub><sup>ICE</sup>_ −  
-Δ_E<sub>tailpipe</sub><sup>EV</sup>_ −  
-Δ_E<sub>brake</sub><sup>EV</sup>_ +  
-Δ_E<sub>tire</sub><sup>EV</sup>_
+_E<sub>tailpipe</sub><sup>ICE</sup>_ + _E<sub>non-exhaust</sub><sup>ICE</sup>_ − Δ_E<sub>tailpipe</sub><sup>EV</sup>_ −  Δ_E<sub>brake</sub><sup>EV</sup>_ + Δ_E<sub>tire</sub><sup>EV</sup>_
 
 - Tailpipe pollutants (CO₂, NO₂, PM) are eliminated by EVs.
 - Regenerative braking reduces brake dust, a major PM source.
@@ -222,10 +218,7 @@ _E<sub>non-exhaust</sub><sup>ICE</sup>_ −
 ### 🌍 Global Impact (Lifecycle Emissions)
 
 **Global Impact** =  
-_E<sub>extraction</sub><sup>fossil</sup>_ +  
-_E<sub>battery</sub><sup>EV</sup>_ +  
-_E<sub>operation</sub><sup>grid</sup>_ −  
-Δ_E<sub>tailpipe, lifetime</sub><sup>ICE</sup>_
+_E<sub>extraction</sub><sup>fossil</sup>_ + _E<sub>battery</sub><sup>EV</sup>_ + _E<sub>operation</sub><sup>grid</sup>_ − Δ_E<sub>tailpipe, lifetime</sub><sup>ICE</sup>_
 
 - Includes emissions from fossil fuel production and battery manufacturing.
 - Depends heavily on the national electricity mix used for charging.

@@ -15,22 +15,27 @@ This project investigates the impact of electric vehicle (EV) adoption on air qu
 
 ## Folder Structure
 DSML/
-├── data/                     # Folder for raw and processed data
-│   ├── raw/                  # Raw data files
-│   └── processed/            # Processed/cleaned data files
-├── notebooks/                # Jupyter notebooks for exploratory data analysis (EDA)
-├── src/                      # Source code for the project
-│   ├── data_processing.py    # Scripts for data cleaning and preprocessing
-│   ├── analysis.py           # Scripts for statistical and machine learning analysis
-│   ├── visualization.py      # Scripts for generating visualizations
-│   └── app.py                # Streamlit app entry point
-├── tests/                    # Unit tests for your code
-├── figures/                  # Folder for saving figures/graphs
-├── docs/                     # Documentation and references
-├── README.md                 # Project overview and instructions
-├── requirements.txt          # Python dependencies
-├── environment.yml           # Conda environment configuration
-└── .gitignore                # Files and folders to ignore in Git
+├── data/                     # Raw and processed datasets
+│   ├── raw/                 # Includes fleet_data/, AQ_PQ_data/, AQ_CSV_data/
+│   └── processed/           # Aggregated files like AQ_annual_averages.csv
+├── notebooks/               # Jupyter notebooks for EDA
+├── src/                     # Python source code
+│   ├── data_processing.py   # Data cleaning and transformation
+│   ├── analysis.py          # Modeling and regression analysis
+│   ├── visualization.py     # Graph generation
+│   └── app.py               # Streamlit dashboard
+├── figures/                 # Generated EDA & model figures
+│   ├── EDA/
+│   └── analysis/
+├── results/                 # CSV results from regression models
+├── tests/                   # Unit tests (in development)
+├── docs/                    # Supporting documentation
+├── README.md                # You're reading it!
+├── requirements.txt         # Pip environment
+├── environment.yml          # Conda environment (recommended)
+└── .gitignore               # Ignore logs, caches, DS_Store, etc.
+
+
 
 ## Setup Instructions
 1. Clone the repository:
@@ -48,8 +53,67 @@ pip install -r requirements.txt
 Run the Streamlit app:
 streamlit run src/app.py -> NOTE: ALWAYS run from project root for file directory calls to function!
 
+## 🔍 Project Flow
 
-## 🔍 Regional vs. Global Impact of EV Adoption
+1. Data Collection
+
+- EV Fleet Data: Downloaded from the European Alternative Fuels Observatory, including new registrations and fleet % from 2012 to 2023.
+- Air Quality Data: 18+ million hourly observations collected via EEA Air Quality Download Interface, across 6 countries and 6 pollutants, from 2013 to 2023. 
+
+2. Data Cleaning & Aggregation
+
+- Cleaning of outliers and noise from roaw data
+- Annual, daytime, and rush-hour averages per country/pollutant calculated
+- Final outputs: AQ_annual_averages.csv and fleet summary CSVs
+
+3. Modeling & Regression
+
+Models: Linear Regression, Ridge, Lasso, and Random Forest
+Predictors: % AFV share + country fixed effects
+Targets: pollutant levels (annual, daytime, rush hour)
+Metrics: R² train/test + overfit gap
+
+4. Interpretation and output visualization 
+
+- Generated country-specific regression plots per pollutant, showcasing variation in fit quality and model behavior
+- Identified best and worst performing models per pollutant based on R² scores and generalization gap.
+- Built a comprehensive Streamlit dashboard with 
+      Tab-based EDA narratives for fleet and air quality trends and sectioned regression result viewers for each pollutant.
+      An interactive **Air Quality Predictor** and a **Custom Regression Builder** where users can input AFV share and explore projected pollutant impacts under different scenarios.
+
+## 💡 EDA Takeways
+
+## Fleet Data
+
+| 📈 Plot                              | 🧠 Key Insight                                                                           |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| **Distribution of PHEVs by Country** | Nordic countries (NO, SE) show broader adoption and higher PHEV shares than CH and LX.   |
+| **BEV Trends Over Time**             | Norway shows exponential BEV growth post-2016; other countries follow gradually.         |
+| **AFV Market Share**                 | Norway again leads in both central tendency and spread; CH and AT are more conservative. |
+| **New AFV Registrations by Country** | Norway and Netherlands show the highest volume and variance—reflecting policy impact.    |
+| **AFV Registrations Over Time**      | Steep uptick across all countries since 2018, especially in NL, NO, and SE.              |
+
+Norway consistently leads in BEV and PHEV integration. Recent growth across countries supports the hypothesis that AFV adoption has accelerated post-2018 due to policy and infrastructure improvements.
+
+
+
+### Air Quality Data
+
+| 📉 Plot                                         | 🧠 Key Insight                                                                      |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **CO₂ Levels Over Time by Country**             | Austria and Denmark show the highest CO₂ levels; Norway consistently lowest.        |
+| **Annual Trends of Pollutants (All Countries)** | NO₂, NOₓ, PMs are falling; CO₂ shows a slight increase—likely energy mix dependent. |
+| **Annual Trends by Country**                    | NO₂/NOₓ declines are consistent; PM10 is noisier due to non-exhaust factors.        |
+| **Hourly Pollution Patterns (All Countries)**   | Strong diurnal patterns—spikes during rush hours. CO₂ and NO₂ align with traffic.   |
+| **Hourly Patterns by Country**                  | Norway/Sweden show flatter curves and lower peak values; others show AM/PM surges.  |
+| **Air Quality Station Density**                 | AT and SE have most stations; CH has fewer, which may limit spatial granularity.    |
+
+Local pollutants from combustion (NOₓ, NO₂) are decreasing, aligned with EV adoption and stricter emissions standards. PMs show more erratic behavior, reinforcing the importance of considering non-exhaust sources.
+
+## 🔍 Model Setup & Main Takeways
+
+
+
 
 This project examines only **local air quality** and not **global emissions** in the context of increasing electric and alternative fuel vehicle (AFV) adoption across six European countries. To better understand the results and context, here is a quick primer on regional vs. global impact of a changing passenger-vehicle fleet from internal-combustion to alternative fuels (PHEV, BEV etc.)
 
@@ -90,31 +154,7 @@ These formulas frame the limitations of our regression models and data interpret
 
 
 
-📊 Exploratory Data Analysis (EDA)
-🚗 Fleet Composition Across Europe
-We analyzed the penetration of alternative fuel vehicles (AFVs), including battery electric vehicles (BEVs) and plug-in hybrids (PHEVs), across six high-EV-adoption countries: Austria (AT), Switzerland (CH), Denmark (DK), Netherlands (NL), Norway (NO), and Sweden (SE).
 
-📈 Plot	🧠 Key Insight
-Distribution of PHEVs by Country	Nordic countries (NO, SE) show broader adoption and higher PHEV shares than CH and LX.
-BEV Trends Over Time	Norway shows exponential BEV growth post-2016; other countries follow gradually.
-AFV Market Share	Norway again leads in both central tendency and spread; CH and AT are more conservative.
-New AFV Registrations by Country	Norway and Netherlands show the highest volume and variance—reflecting policy impact.
-AFV Registrations Over Time	Steep uptick across all countries since 2018, especially in NL, NO, and SE.
-
-🧠 Fleet EDA Takeaway: Norway consistently leads in BEV and PHEV integration. Recent growth across countries supports the hypothesis that AFV adoption has accelerated post-2018 due to policy and infrastructure improvements.
-
-🌫️ Air Quality Trends and Dynamics
-This section evaluates the impact of mobility transitions on urban air quality by analyzing CO₂, NO, NO₂, NOₓ, PM10, and PM2.5 levels.
-
-📉 Plot	🧠 Key Insight
-CO₂ Levels Over Time by Country	Austria and Denmark show the highest CO₂ levels; Norway consistently lowest.
-Annual Trends of Pollutants (All Countries)	NO₂, NOₓ, PMs are falling; CO₂ shows a slight increase—likely energy mix dependent.
-Annual Trends by Country	NO₂/NOₓ declines are consistent; PM10 is noisier due to non-exhaust factors.
-Hourly Pollution Patterns (All Countries)	Strong diurnal patterns—spikes during rush hours. CO₂ and NO₂ align with traffic.
-Hourly Patterns by Country	Norway/Sweden show flatter curves and lower peak values; others show AM/PM surges.
-Air Quality Station Density	AT and SE have most stations; CH has fewer, which may limit spatial granularity.
-
-🧠 Air Quality EDA Takeaway: Local pollutants from combustion (NOₓ, NO₂) are decreasing, aligned with EV adoption and stricter emissions standards. PMs show more erratic behavior, reinforcing the importance of considering non-exhaust sources.
 
 
 Analysis:

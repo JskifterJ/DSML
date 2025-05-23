@@ -1013,10 +1013,6 @@ elif section == "Discussion":
     Incorporating these factors into future studies would provide a more comprehensive understanding of the drivers of air quality improvements.
     """)
 
-    st.subheader("Conclusion")
-    st.write("""
-    While EVs hold great promise for reducing urban air pollution and greenhouse gas emissions, their environmental benefits depend on a complex web of factors, including energy grid composition, lifecycle emissions, and adoption rates. By addressing the limitations outlined above, future research can help policymakers and stakeholders make more informed decisions about the transition to sustainable transportation.
-    """)
 
     # Add a motivational GIF or image
     st.image("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWloOWNlazZ6eDVzaG91M2F4YTRxaDd4enhlZnBiMXQxaHI2d2M5dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Vfhj19PusenfO/giphy.gif", caption="The road to cleaner air is a journey worth taking!", use_container_width =True)
@@ -1053,15 +1049,25 @@ elif section == "Conclusions":
 
     st.subheader("🚀 Next Actionable Moves")
     st.markdown("""
-    - **Deploy Causal Inference Techniques**: We plan to extend the project by implementing **causal inference models** (e.g., difference-in-differences, instrumental variables, or causal forests) to better isolate the effect of EV adoption from co-occurring factors like policy changes or economic shifts.
+    - **Deploy Causal Inference Techniques**: Beyond the scope of this project, the obvious next step would be to extend the project by implementing **causal inference models** (e.g., difference-in-differences, instrumental variables, or causal forests) to better isolate the effect of EV adoption from co-occurring factors like policy changes or economic shifts.
    
-    - **Integrate Geospatial and High-Resolution Temporal Data**:By incorporating **satellite-based pollution data** and **hourly monitoring station feeds**, we can better capture **short-term spikes** and **urban microclimates**, improving the spatial accuracy of our predictions.
+    - **Integrate Geospatial and High-Resolution Temporal Data**:By incorporating **satellite-based pollution data** and **hourly monitoring station feeds**, we would could better isolate the effects of **short-term spikes** and **urban microclimates**, improving the spatial accuracy of our predictions.
     
-    - **Merge with Grid and Energy Mix Data**:To bridge regional and global impacts, we will link EV adoption with **electric grid data and lifecycle emission factors**, evaluating whether “clean” EVs truly displace emissions or shift them upstream.
+    - **Merge with Grid and Energy Mix Data**:To bridge regional and global impacts, we could link EV adoption with **electric grid data and lifecycle emission factors**, evaluating whether “clean” EVs truly displace emissions or simply shift them upstream.
     
-    - **Simulate Policy Scenarios**:Using our trained models, we aim to **simulate hypothetical policy changes** — like EV subsidies or ICE vehicle bans — to evaluate their projected impact on different pollutants.
-    
-    - **Collaborate with Policy Experts or City Planners**:Our findings offer a compelling starting point for **evidence-based policymaking**. We hope to share results with local stakeholders to refine urban mobility strategies or inform low-emission zone designs.
+    - **Simulate Policy Scenarios**:Equipped with robust econometrics-based models, one would try to **simulate hypothetical policy changes** such as EV subsidies or ICE vehicle bans to evaluate their projected impact on different pollutants.
+    """)
+
+    st.subheader("🧠 What we Learned")
+    st.markdown("""
+    - **Version Control with GitHub:** We became much more comfortable using Git and GitHub for collaboration, including resolving merge conflicts, managing branches, and using pull requests to review and integrate code changes.
+    - **Debugging and Troubleshooting:** We learned to systematically debug code, interpret error messages, and use tools like Stack Overflow and official documentation to resolve issues—especially when dealing with tricky file paths and Streamlit reruns.
+    - **Repository Management:** We encountered and overcame GitHub storage and file size restrictions, learning to use `.gitignore` and LFS effectively and keep our repository clean by avoiding the upload of large data files and generated figures.
+    - **Environment & Dependency Management:** Setting up and maintaining a consistent development environment (using `environment.yml` and `requirements.txt`) was crucial for reproducibility and collaboration throughout the project.
+    - **Documentation:** We saw firsthand the value of clear README files, code comments, and structured folder organization for both our own workflow and for future users of our codebase.
+    - **Teamwork and Fun!:** Apart from the technical sides, we learned just how important it is to stay aligned on process and codebase structure, and made sure to push the boundaries of what we could do with Streamlit and GitHub Actions, emphasizing having fun and breaking things rather than being too conservative :)!
+
+    These lessons will serve us well in future data science projects, both academic and professional!    
     """)
 
     col1, col2, col3 = st.columns([1, 5, 1])
